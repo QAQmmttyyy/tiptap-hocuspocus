@@ -1,7 +1,31 @@
 import { Server } from '@hocuspocus/server'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+
+const execAsync = promisify(exec)
 
 let hocuspocusServer: Server | null = null
 let connectionCount = 0
+
+// 清理端口函数
+async function clearPort(port: number) {
+  try {
+    const { stdout } = await execAsync(`lsof -ti:${port}`)
+    if (stdout.trim()) {
+      const pids = stdout.trim().split('\n')
+      for (const pid of pids) {
+        try {
+          await execAsync(`kill -9 ${pid}`)
+          console.log(`已终止占用端口${port}的进程: ${pid}`)
+        } catch {
+          // 忽略kill失败的错误，可能进程已经结束
+        }
+      }
+    }
+  } catch {
+    // 没有进程占用端口，这是正常情况
+  }
+}
 
 export function getHocuspocusServer() {
   if (hocuspocusServer) {
@@ -17,7 +41,9 @@ export function getHocuspocusServer() {
     },
 
     async onDisconnect(data) {
-      connectionCount--
+      if (connectionCount > 0) {
+        connectionCount--
+      }
       console.log(`用户断开连接: ${data.socketId}，当前连接数: ${connectionCount}`)
     },
 
@@ -50,6 +76,9 @@ export function getHocuspocusServer() {
 }
 
 export async function startHocuspocusServer() {
+  // 先清理端口
+  await clearPort(1234)
+  
   const server = getHocuspocusServer()
   
   if (server) {
