@@ -1,6 +1,7 @@
 import { Server } from '@hocuspocus/server'
 
 let hocuspocusServer: Server | null = null
+let connectionCount = 0
 
 export function getHocuspocusServer() {
   if (hocuspocusServer) {
@@ -11,11 +12,13 @@ export function getHocuspocusServer() {
     port: 1234,
     name: 'hocuspocus-server',
     async onConnect(data) {
-      console.log(`用户连接: ${data.socketId}`)
+      connectionCount++
+      console.log(`用户连接: ${data.socketId}，当前连接数: ${connectionCount}`)
     },
 
     async onDisconnect(data) {
-      console.log(`用户断开连接: ${data.socketId}`)
+      connectionCount--
+      console.log(`用户断开连接: ${data.socketId}，当前连接数: ${connectionCount}`)
     },
 
     async onLoadDocument(data) {
@@ -67,6 +70,7 @@ export function stopHocuspocusServer() {
   if (hocuspocusServer) {
     hocuspocusServer.destroy()
     hocuspocusServer = null
+    connectionCount = 0 // 重置连接数
     console.log('🛑 Hocuspocus服务器已停止')
   }
 }
@@ -75,6 +79,6 @@ export function getServerStatus() {
   return {
     running: hocuspocusServer ? true : false,
     port: 1234,
-    connections: hocuspocusServer ? hocuspocusServer.hocuspocus.getConnectionsCount() : 0
+    connections: connectionCount
   }
 } 
