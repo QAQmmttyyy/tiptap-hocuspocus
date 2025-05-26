@@ -183,7 +183,7 @@ export default function CollaborativeEditor({
   // 如果provider还没有准备好，显示加载状态
   if (!provider) {
     return (
-      <div className="w-full max-w-5xl mx-auto p-4">
+      <div className="w-full max-w-5xl mx-auto border shadow-lg rounded-lg overflow-hidden p-4">
         <Card className="p-8 text-center">
           <div className="text-lg">正在初始化协作环境...</div>
           <div className="text-sm text-gray-600 mt-2">请稍候</div>
@@ -193,7 +193,7 @@ export default function CollaborativeEditor({
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto border shadow-lg rounded-lg overflow-hidden">
       {/* 顶部状态栏 */}
       <div className="flex items-center justify-between px-6 py-3 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center gap-3">

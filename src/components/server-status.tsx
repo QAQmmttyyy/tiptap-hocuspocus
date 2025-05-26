@@ -61,7 +61,7 @@ export default function ServerStatus() {
   }, [])
 
   return (
-    <Card className="p-4 mb-4">
+    <Card className="p-4 mb-4 border shadow-xs rounded-lg overflow-hidden">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h3 className="font-medium">协作服务器状态</h3>
