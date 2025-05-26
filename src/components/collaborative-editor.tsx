@@ -1,6 +1,6 @@
 'use client'
 
-import { useEditor, EditorContent, BubbleMenu, FloatingMenu } from '@tiptap/react'
+import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Heading from '@tiptap/extension-heading'
 import Collaboration from '@tiptap/extension-collaboration'
@@ -45,7 +45,7 @@ export default function CollaborativeEditor({
         heading: false, // 禁用 StarterKit 的 heading，使用自定义配置
         paragraph: {
           HTMLAttributes: {
-            class: 'my-2 leading-7 text-gray-800 first:mt-0',
+            class: 'my-2 leading-6 text-gray-800 first:mt-0',
           },
         },
         bulletList: {
@@ -183,7 +183,7 @@ export default function CollaborativeEditor({
   // 如果provider还没有准备好，显示加载状态
   if (!provider) {
     return (
-      <div className="w-full max-w-5xl mx-auto border shadow-lg rounded-lg overflow-hidden p-4">
+      <div className="w-full max-w-5xl mx-auto p-4">
         <Card className="p-8 text-center">
           <div className="text-lg">正在初始化协作环境...</div>
           <div className="text-sm text-gray-600 mt-2">请稍候</div>
@@ -193,9 +193,9 @@ export default function CollaborativeEditor({
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto border shadow-lg rounded-lg overflow-hidden">
+    <div className="w-full max-w-5xl mx-auto border shadow-lg rounded-lg">
       {/* 顶部状态栏 */}
-      <div className="flex items-center justify-between px-6 py-3 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+      <div className="flex items-center justify-between px-6 py-3 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10 rounded-t-lg">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${
@@ -237,160 +237,15 @@ export default function CollaborativeEditor({
 
       {/* 编辑器容器 */}
       <div className="relative">
-        {/* 固定工具栏 */}
-        <div className="sticky top-16 z-20 mx-6 mt-4">
-          <div className="flex items-center gap-1 p-1 bg-white border border-gray-200 rounded-lg shadow-sm w-fit">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleBold().run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('bold') 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              <span className="font-bold">B</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleItalic().run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('italic') 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              <span className="italic">I</span>
-            </Button>
-            
-            <div className="w-px h-4 bg-gray-300 mx-1" />
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('heading', { level: 1 }) 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              H1
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('heading', { level: 2 }) 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              H2
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('heading', { level: 3 }) 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              H3
-            </Button>
-            
-            <div className="w-px h-4 bg-gray-300 mx-1" />
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleCode().run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('code') 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              <span className="font-mono">&lt;/&gt;</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('codeBlock') 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              代码块
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleBlockquote().run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('blockquote') 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              引用
-            </Button>
-            
-            <div className="w-px h-4 bg-gray-300 mx-1" />
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleBulletList().run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('bulletList') 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              • 列表
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-              className={`h-8 px-2 text-xs transition-colors ${
-                editor?.isActive('orderedList') 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-              disabled={!editor}
-            >
-              1. 列表
-            </Button>
-          </div>
-        </div>
-
         {/* 编辑器内容区域 */}
-        <div className="px-6 pb-20">
+        <div className="p-6">
           {editor ? (
-            <div className="mt-8 relative">
+            <div className="relative">
               {/* Bubble Menu - 选中文本时显示 */}
               <BubbleMenu 
                 editor={editor} 
                 tippyOptions={{ duration: 100 }}
-                className="bg-white border border-gray-200 rounded-lg shadow-lg p-1 flex gap-1 z-50"
+                className="bg-white border border-gray-200 rounded-lg shadow-lg p-1 flex flex-wrap gap-1 z-50 w-fit  items-center"
               >
                 <Button
                   variant="ghost"
@@ -428,6 +283,48 @@ export default function CollaborativeEditor({
                 >
                   <span className="line-through">S</span>
                 </Button>
+                
+                <div className="w-px h-4 bg-gray-300 mx-1" />
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('heading', { level: 1 }) 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  H1
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('heading', { level: 2 }) 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  H2
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('heading', { level: 3 }) 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  H3
+                </Button>
+                
+                <div className="w-px h-4 bg-gray-300 mx-1" />
+                
                 <Button
                   variant="ghost"
                   size="sm"
@@ -440,39 +337,58 @@ export default function CollaborativeEditor({
                 >
                   <span className="font-mono">&lt;/&gt;</span>
                 </Button>
-              </BubbleMenu>
-
-              {/* Floating Menu - 空行时显示 */}
-              <FloatingMenu 
-                editor={editor} 
-                tippyOptions={{ duration: 100 }}
-                className="bg-white border border-gray-200 rounded-lg shadow-lg p-1 flex gap-1 z-50"
-              >
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                  className="h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('codeBlock') 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
                 >
-                  标题 1
+                  代码块
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                  className="h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('blockquote') 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
                 >
-                  标题 2
+                  引用
                 </Button>
+                
+                <div className="w-px h-4 bg-gray-300 mx-1" />
+                
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => editor.chain().focus().toggleBulletList().run()}
-                  className="h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('bulletList') 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
                 >
                   • 列表
                 </Button>
-              </FloatingMenu>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('orderedList') 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  1. 列表
+                </Button>
+              </BubbleMenu>
 
               <EditorContent 
                 editor={editor} 
