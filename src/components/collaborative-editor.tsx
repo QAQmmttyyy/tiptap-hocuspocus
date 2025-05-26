@@ -1,7 +1,8 @@
 'use client'
 
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, BubbleMenu, FloatingMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Heading from '@tiptap/extension-heading'
 import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
 import { HocuspocusProvider } from '@hocuspocus/provider'
@@ -10,7 +11,7 @@ import * as Y from 'yjs'
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import '@/styles/tiptap.css'
 
 interface CollaborativeEditorProps {
   documentId: string
@@ -41,6 +42,71 @@ export default function CollaborativeEditor({
     extensions: [
       StarterKit.configure({
         history: false, // 禁用本地历史，使用协作历史
+        heading: false, // 禁用 StarterKit 的 heading，使用自定义配置
+        paragraph: {
+          HTMLAttributes: {
+            class: 'my-2 leading-7 text-gray-800 first:mt-0',
+          },
+        },
+        bulletList: {
+          HTMLAttributes: {
+            class: 'my-4 pl-6',
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: 'my-4 pl-6',
+          },
+        },
+        listItem: {
+          HTMLAttributes: {
+            class: 'my-1 leading-7',
+          },
+        },
+        bold: {
+          HTMLAttributes: {
+            class: 'font-semibold text-gray-900',
+          },
+        },
+        italic: {
+          HTMLAttributes: {
+            class: 'italic text-gray-900',
+          },
+        },
+        strike: {
+          HTMLAttributes: {
+            class: 'line-through text-gray-600',
+          },
+        },
+        code: {
+          HTMLAttributes: {
+            class: 'bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-mono',
+          },
+        },
+        codeBlock: {
+          HTMLAttributes: {
+            class: 'bg-gray-50 border border-gray-200 p-4 rounded-lg overflow-x-auto my-4 font-mono text-sm text-gray-800',
+          },
+        },
+        blockquote: {
+          HTMLAttributes: {
+            class: 'border-l-4 border-gray-300 pl-4 my-4 italic text-gray-600',
+          },
+        },
+      }),
+      Heading.configure({
+        levels: [1, 2, 3],
+        HTMLAttributes: {
+          1: {
+            class: 'text-3xl font-bold text-gray-900 leading-tight mt-6 mb-4 first:mt-0',
+          },
+          2: {
+            class: 'text-2xl font-semibold text-gray-900 leading-tight mt-5 mb-3',
+          },
+          3: {
+            class: 'text-xl font-semibold text-gray-900 leading-tight mt-4 mb-2',
+          },
+        },
       }),
       // 只有当provider存在时才添加协作扩展
       ...(provider ? [
@@ -59,7 +125,7 @@ export default function CollaborativeEditor({
     content: '<p>开始协作编辑...</p>',
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[400px] p-4',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[400px]',
       },
     },
     immediatelyRender: false,
@@ -105,15 +171,6 @@ export default function CollaborativeEditor({
     }
   }, [documentId])
 
-  const getStatusColor = () => {
-    switch (status) {
-      case 'connected': return 'text-green-600'
-      case 'connecting': return 'text-yellow-600'
-      case 'disconnected': return 'text-red-600'
-      default: return 'text-gray-600'
-    }
-  }
-
   const getStatusText = () => {
     switch (status) {
       case 'connected': return '已连接'
@@ -126,7 +183,7 @@ export default function CollaborativeEditor({
   // 如果provider还没有准备好，显示加载状态
   if (!provider) {
     return (
-      <div className="w-full max-w-4xl mx-auto p-4">
+      <div className="w-full max-w-5xl mx-auto p-4">
         <Card className="p-8 text-center">
           <div className="text-lg">正在初始化协作环境...</div>
           <div className="text-sm text-gray-600 mt-2">请稍候</div>
@@ -136,96 +193,302 @@ export default function CollaborativeEditor({
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <Card className="mb-4 p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <h2 className="text-lg font-semibold">协作文档: {documentId}</h2>
-            <div className={`text-sm ${getStatusColor()}`}>
-              ● {getStatusText()}
-            </div>
+    <div className="w-full max-w-5xl mx-auto">
+      {/* 顶部状态栏 */}
+      <div className="flex items-center justify-between px-6 py-3 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${
+              status === 'connected' ? 'bg-green-500' : 
+              status === 'connecting' ? 'bg-yellow-500' : 'bg-red-500'
+            }`} />
+            <span className="text-sm text-gray-600">{getStatusText()}</span>
           </div>
           
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">在线用户:</span>
-            <div className="flex gap-1">
-              {users.map((user, index) => (
-                <div
-                  key={index}
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs text-white font-medium"
-                  style={{ backgroundColor: user.color || '#666' }}
-                  title={user.name || '匿名用户'}
+          <div className="h-4 w-px bg-gray-300" />
+          
+          <div className="text-sm text-gray-500">
+            文档: <span className="font-medium text-gray-700">{documentId}</span>
+          </div>
+        </div>
+        
+        {/* 在线用户头像 */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500">协作者</span>
+          <div className="flex -space-x-2">
+            {users.slice(0, 5).map((user, index) => (
+              <div
+                key={index}
+                className="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm"
+                style={{ backgroundColor: user.color || '#666' }}
+                title={user.name || '匿名用户'}
+              >
+                {(user.name || 'A')[0].toUpperCase()}
+              </div>
+            ))}
+            {users.length > 5 && (
+              <div className="w-7 h-7 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs text-gray-600 font-medium shadow-sm">
+                +{users.length - 5}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 编辑器容器 */}
+      <div className="relative">
+        {/* 固定工具栏 */}
+        <div className="sticky top-16 z-20 mx-6 mt-4">
+          <div className="flex items-center gap-1 p-1 bg-white border border-gray-200 rounded-lg shadow-sm w-fit">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleBold().run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('bold') 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              <span className="font-bold">B</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleItalic().run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('italic') 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              <span className="italic">I</span>
+            </Button>
+            
+            <div className="w-px h-4 bg-gray-300 mx-1" />
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('heading', { level: 1 }) 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              H1
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('heading', { level: 2 }) 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              H2
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('heading', { level: 3 }) 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              H3
+            </Button>
+            
+            <div className="w-px h-4 bg-gray-300 mx-1" />
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleCode().run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('code') 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              <span className="font-mono">&lt;/&gt;</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('codeBlock') 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              代码块
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('blockquote') 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              引用
+            </Button>
+            
+            <div className="w-px h-4 bg-gray-300 mx-1" />
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleBulletList().run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('bulletList') 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              • 列表
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+              className={`h-8 px-2 text-xs transition-colors ${
+                editor?.isActive('orderedList') 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              disabled={!editor}
+            >
+              1. 列表
+            </Button>
+          </div>
+        </div>
+
+        {/* 编辑器内容区域 */}
+        <div className="px-6 pb-20">
+          {editor ? (
+            <div className="mt-8 relative">
+              {/* Bubble Menu - 选中文本时显示 */}
+              <BubbleMenu 
+                editor={editor} 
+                tippyOptions={{ duration: 100 }}
+                className="bg-white border border-gray-200 rounded-lg shadow-lg p-1 flex gap-1 z-50"
+              >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleBold().run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('bold') 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
                 >
-                  {(user.name || 'A')[0].toUpperCase()}
-                </div>
-              ))}
+                  <span className="font-bold">B</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleItalic().run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('italic') 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="italic">I</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleStrike().run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('strike') 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="line-through">S</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleCode().run()}
+                  className={`h-8 px-2 text-xs transition-colors ${
+                    editor.isActive('code') 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="font-mono">&lt;/&gt;</span>
+                </Button>
+              </BubbleMenu>
+
+              {/* Floating Menu - 空行时显示 */}
+              <FloatingMenu 
+                editor={editor} 
+                tippyOptions={{ duration: 100 }}
+                className="bg-white border border-gray-200 rounded-lg shadow-lg p-1 flex gap-1 z-50"
+              >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                  className="h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                >
+                  标题 1
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                  className="h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                >
+                  标题 2
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleBulletList().run()}
+                  className="h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                >
+                  • 列表
+                </Button>
+              </FloatingMenu>
+
+              <EditorContent 
+                editor={editor} 
+                className="focus-within:outline-none"
+              />
             </div>
-          </div>
+          ) : (
+            <div className="min-h-[500px] flex items-center justify-center text-gray-400">
+              <div className="text-center">
+                <div className="text-lg mb-2">编辑器加载中...</div>
+                <div className="text-sm">请稍候片刻</div>
+              </div>
+            </div>
+          )}
         </div>
-
-        <Separator className="mb-4" />
-
-        <div className="flex gap-2 mb-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => editor?.chain().focus().toggleBold().run()}
-            className={editor?.isActive('bold') ? 'bg-gray-200' : ''}
-            disabled={!editor}
-          >
-            粗体
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => editor?.chain().focus().toggleItalic().run()}
-            className={editor?.isActive('italic') ? 'bg-gray-200' : ''}
-            disabled={!editor}
-          >
-            斜体
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
-            className={editor?.isActive('heading', { level: 1 }) ? 'bg-gray-200' : ''}
-            disabled={!editor}
-          >
-            标题1
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-            className={editor?.isActive('heading', { level: 2 }) ? 'bg-gray-200' : ''}
-            disabled={!editor}
-          >
-            标题2
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => editor?.chain().focus().toggleBulletList().run()}
-            className={editor?.isActive('bulletList') ? 'bg-gray-200' : ''}
-            disabled={!editor}
-          >
-            无序列表
-          </Button>
-        </div>
-      </Card>
-
-      <Card className="p-0 overflow-hidden">
-        {editor ? (
-          <EditorContent 
-            editor={editor} 
-            className="min-h-[500px] border-none focus-within:ring-0"
-          />
-        ) : (
-          <div className="min-h-[500px] flex items-center justify-center text-gray-500">
-            编辑器加载中...
-          </div>
-        )}
-      </Card>
+      </div>
     </div>
   )
 } 
