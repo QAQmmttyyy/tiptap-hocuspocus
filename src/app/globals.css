@@ -120,3 +120,110 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Tiptap Editor Styles */
+
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror h1.heading {
+  @apply text-3xl font-bold text-gray-900 leading-tight mt-6 mb-4 first:mt-0;
+}
+
+.ProseMirror h2.heading {
+  @apply text-2xl font-semibold text-gray-900 leading-tight mt-5 mb-3;
+}
+
+.ProseMirror h3.heading {
+  @apply text-xl font-semibold text-gray-900 leading-tight mt-4 mb-2;
+}
+
+/* 列表样式 */
+.ProseMirror ul {
+  list-style-type: disc;
+  padding-left: 0;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+  padding-left: 0;
+}
+
+.ProseMirror ul ul {
+  list-style-type: circle;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.ProseMirror ol ol {
+  list-style-type: lower-alpha;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.ProseMirror ul ol {
+  list-style-type: decimal;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.ProseMirror ol ul {
+  list-style-type: disc;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.ProseMirror li {
+  display: list-item;
+  margin-left: 1.5rem;
+}
+
+.ProseMirror li p {
+  margin: 0;
+}
+
+/* 占位符样式 */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: "开始输入或按 '/' 添加内容...";
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
+
+/* 选择样式 */
+.ProseMirror ::selection {
+  background-color: #dbeafe;
+}
+
+/* 协作光标样式 */
+.collaboration-cursor__caret {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  word-break: normal;
+  pointer-events: none;
+  border-color: inherit;
+}
+
+.collaboration-cursor__label {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.2;
+  user-select: none;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px 3px 3px 0;
+  white-space: nowrap;
+  z-index: 10;
+  background-color: inherit;
+} 

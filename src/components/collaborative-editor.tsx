@@ -11,7 +11,6 @@ import * as Y from 'yjs'
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import '@/styles/tiptap.css'
 
 interface CollaborativeEditorProps {
   documentId: string
@@ -97,15 +96,7 @@ export default function CollaborativeEditor({
       Heading.configure({
         levels: [1, 2, 3],
         HTMLAttributes: {
-          1: {
-            class: 'text-3xl font-bold text-gray-900 leading-tight mt-6 mb-4 first:mt-0',
-          },
-          2: {
-            class: 'text-2xl font-semibold text-gray-900 leading-tight mt-5 mb-3',
-          },
-          3: {
-            class: 'text-xl font-semibold text-gray-900 leading-tight mt-4 mb-2',
-          },
+          class: 'heading',
         },
       }),
       // 只有当provider存在时才添加协作扩展
