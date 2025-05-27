@@ -64,7 +64,7 @@ export default function ServerStatus() {
     <Card className="p-4 mb-4 border shadow-xs rounded-lg overflow-hidden">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h3 className="font-medium">协作服务器状态</h3>
+          <h3 className="font-medium">ws 服务器状态</h3>
           <div className={`flex items-center gap-2 text-sm ${status.running ? 'text-green-600' : 'text-red-600'}`}>
             <div className={`w-2 h-2 rounded-full ${status.running ? 'bg-green-500' : 'bg-red-500'}`} />
             {status.running ? '运行中' : '已停止'}
