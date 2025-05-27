@@ -108,6 +108,6 @@ export function getServerStatus() {
   return {
     running: hocuspocusServer ? true : false,
     port: 1234,
-    connections: connectionCount
+    connections: hocuspocusServer?.hocuspocus.getConnectionsCount() ?? connectionCount
   }
 } 
