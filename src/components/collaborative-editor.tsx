@@ -11,6 +11,8 @@ import * as Y from 'yjs'
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { CalendarExtension } from '@/lib/calendar-extension'
+import { CalendarIcon } from 'lucide-react'
 
 interface CollaborativeEditorProps {
   documentId: string
@@ -99,6 +101,7 @@ export default function CollaborativeEditor({
           class: 'heading',
         },
       }),
+      CalendarExtension,
       // 只有当provider存在时才添加协作扩展
       ...(provider ? [
         Collaboration.configure({
@@ -236,6 +239,32 @@ export default function CollaborativeEditor({
               <BubbleMenu 
                 editor={editor} 
                 tippyOptions={{ duration: 100 }}
+                shouldShow={({ state, from, to }) => {
+                  // 如果选中的是calendar节点，不显示bubble menu
+                  const { selection } = state
+                  const { $from } = selection
+                  
+                  // 检查当前选中的节点是否是calendar节点
+                  if ($from.parent.type.name === 'calendar') {
+                    return false
+                  }
+                  
+                  // 检查选中范围内是否包含calendar节点
+                  let hasCalendarNode = false
+                  state.doc.nodesBetween(from, to, (node) => {
+                    if (node.type.name === 'calendar') {
+                      hasCalendarNode = true
+                      return false
+                    }
+                  })
+                  
+                  if (hasCalendarNode) {
+                    return false
+                  }
+                  
+                  // 默认的显示逻辑：有选中文本时显示
+                  return from !== to
+                }}
                 className="bg-white border border-gray-200 rounded-lg shadow-lg p-1 flex flex-wrap gap-1 z-50 w-fit  items-center"
               >
                 <Button
@@ -378,6 +407,19 @@ export default function CollaborativeEditor({
                   }`}
                 >
                   1. 列表
+                </Button>
+                
+                <div className="w-px h-4 bg-gray-300 mx-1" />
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().insertCalendar().run()}
+                  className="h-8 px-2 text-xs transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  title="插入日历"
+                >
+                  <CalendarIcon className="h-3 w-3 mr-1" />
+                  日历
                 </Button>
               </BubbleMenu>
 
