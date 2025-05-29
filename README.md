@@ -1,26 +1,45 @@
 # 实时协作文档编辑器
 
-基于 Next.js、Tiptap、Hocuspocus 和 shadcn/ui 构建的实时协作文档编辑器 Demo。
+基于 Next.js、Tiptap、Hocuspocus 和 shadcn/ui 构建的现代化实时协作文档编辑器。
 
 ## 技术栈
 
-- **Next.js 15** - React 全栈框架（包含API路由）
-- **Tiptap** - 现代富文本编辑器
-- **Hocuspocus** - 实时协作后端服务（集成在Next.js中）
-- **Yjs** - 共享数据类型，用于实时协作
-- **shadcn/ui** - 现代 UI 组件库
-- **Tailwind CSS** - 实用优先的 CSS 框架
+- **Next.js 15** - React 全栈框架（App Router）
+- **Tiptap 2.12** - 现代富文本编辑器框架
+- **Hocuspocus 3.1** - 实时协作后端服务
+- **Yjs 13.6** - 共享数据类型，用于实时协作
+- **shadcn/ui** - 基于 Radix UI 的现代组件库
+- **Tailwind CSS 4** - 实用优先的 CSS 框架
+- **TypeScript** - 类型安全的 JavaScript
 
 ## 功能特性
 
-- ✅ 实时多用户协作编辑
-- ✅ 实时光标位置同步
-- ✅ 用户在线状态显示
-- ✅ 基本富文本编辑功能（粗体、斜体、标题、列表等）
-- ✅ 现代化 UI 界面
-- ✅ 响应式设计
-- ✅ 集成式服务器管理
-- ✅ 服务器状态监控
+### ✅ 核心协作功能
+- **实时多用户协作编辑** - 支持无限用户同时编辑
+- **协作光标同步** - 实时显示其他用户的光标位置和选中内容
+- **用户在线状态** - 显示当前协作的用户列表
+- **连接状态监控** - 实时显示连接状态和用户数量
+
+### ✅ 富文本编辑功能
+- **标题支持** - H1、H2、H3 多级标题
+- **文本格式** - 粗体、斜体、删除线、行内代码
+- **列表功能** - 有序列表、无序列表，支持嵌套
+- **引用块** - 支持引用文本
+- **代码块** - 语法高亮的代码块
+- **自定义扩展** - 日历组件等自定义节点
+
+### ✅ 用户界面功能
+- **Bubble Menu** - 选中文本时的浮动工具栏
+- **现代化设计** - 基于 shadcn/ui 的美观界面
+- **响应式设计** - 适配移动端和桌面端
+- **暗色主题支持** - 完整的主题切换能力
+- **服务器管理界面** - 可视化的服务器启停控制
+
+### ✅ 系统功能
+- **集成式部署** - Hocuspocus 服务器集成在 Next.js 中
+- **API 管理** - RESTful API 控制协作服务器
+- **自动重连** - 网络中断时自动重新连接
+- **文档管理** - 支持多文档切换和新建
 
 ## 快速开始
 
@@ -30,7 +49,7 @@
 npm install
 ```
 
-### 2. 启动应用
+### 2. 启动开发服务器
 
 ```bash
 npm run dev
@@ -40,121 +59,100 @@ npm run dev
 
 打开浏览器访问 [http://localhost:3000](http://localhost:3000)
 
-### 4. 启动协作服务器
+### 4. 启动协作功能
 
-在应用界面中点击"启动服务器"按钮，或者通过API启动：
-
-```bash
-curl -X POST http://localhost:3000/api/collaboration
-```
-
-## 使用说明
-
-1. **启动服务器**：在首页点击"启动服务器"按钮
-2. **进入应用**：输入用户名（可选）和文档ID
-3. **开始协作**：点击"开始协作编辑"按钮
-4. **多用户测试**：在不同浏览器窗口或设备上使用相同的文档ID
-5. **实时编辑**：所有用户的编辑内容会实时同步
-6. **查看用户**：右上角显示当前在线用户
-7. **监控状态**：服务器状态组件显示连接数和运行状态
+1. 在首页点击"启动服务器"按钮
+2. 输入用户名和文档ID
+3. 点击"开始协作编辑"
+4. 在不同浏览器窗口中使用相同文档ID进行多用户测试
 
 ## 📁 项目结构
 
 ```
 src/
 ├── app/
-│   ├── page.tsx               # 主页面
-│   ├── layout.tsx             # 根布局
-│   └── globals.css            # 全局样式（Tailwind + 主题变量）
+│   ├── api/
+│   │   └── collaboration/
+│   │       └── route.ts           # 协作服务器 API 路由
+│   ├── test/
+│   │   └── page.tsx               # 编辑器测试页面
+│   ├── page.tsx                   # 主页面
+│   ├── layout.tsx                 # 根布局
+│   ├── globals.css                # 全局样式和主题
+│   └── favicon.ico
 ├── components/
-│   ├── ui/                    # shadcn/ui 组件
-│   └── collaborative-editor.tsx  # 协作编辑器组件
-├── styles/
-│   └── tiptap.css             # Tiptap 编辑器专用样式
-└── lib/
-    └── hocuspocus-server.ts   # Hocuspocus 服务器配置
+│   ├── ui/                        # shadcn/ui 组件库
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── input.tsx
+│   │   ├── calendar.tsx
+│   │   ├── separator.tsx
+│   │   ├── skeleton.tsx
+│   │   ├── sheet.tsx
+│   │   ├── sidebar.tsx
+│   │   └── tooltip.tsx
+│   ├── collaborative-editor.tsx   # 协作编辑器主组件
+│   ├── server-status.tsx          # 服务器状态管理组件
+│   └── calendar-node.tsx          # 自定义日历节点组件
+├── lib/
+│   ├── hocuspocus-server.ts       # Hocuspocus 服务器配置
+│   ├── calendar-extension.ts      # 自定义日历扩展
+│   └── utils.ts                   # 工具函数
+└── hooks/
+    └── use-mobile.ts              # 移动端检测Hook
 ```
 
-## ⚙️ 核心功能
+## 🔧 核心组件详解
 
-- **实时协作编辑** - 多用户同时编辑
-- **协作光标** - 显示其他用户的光标位置
-- **用户状态显示** - 在线用户列表
-- **连接状态监控** - 实时显示连接状态
-- **富文本编辑** - 支持标题、列表、格式化等
-- **Notion 风格 UI** - 现代化的编辑器界面
-- **三层工具栏设计** - 固定工具栏 + 气泡菜单 + 浮动菜单
-- **完全 Tailwind 化** - 使用 Tailwind CSS 进行样式管理
+### CollaborativeEditor 组件
 
-## 🎨 样式架构
+主要的协作编辑器组件，包含：
 
-### Tailwind 优先原则
-- **扩展配置**: 通过 Tiptap 扩展的 `HTMLAttributes` 配置 Tailwind 类
-- **最小化 CSS**: 只在 `src/styles/tiptap.css` 中保留 Tailwind 无法处理的样式
-- **组件内样式**: 所有交互样式都在组件中使用 Tailwind 类
+- **实时协作功能**：集成 Yjs 和 Hocuspocus 提供者
+- **富文本编辑**：基于 Tiptap 的扩展配置
+- **Bubble Menu**：选中文本时的工具栏
+- **用户状态管理**：在线用户列表和状态显示
+- **自定义扩展**：日历节点等特殊功能
 
-### 样式文件说明
-- `src/app/globals.css`: 全局样式、主题变量、基础样式
-- `src/styles/tiptap.css`: 编辑器专用样式（占位符、协作光标等）
+### ServerStatus 组件
 
-## 🔧 自定义配置
+服务器管理组件：
 
-### 添加新的编辑器功能
+- **状态监控**：实时显示服务器运行状态
+- **连接计数**：显示当前连接的用户数量
+- **控制功能**：启动/停止协作服务器
+- **自动刷新**：每3秒自动检查服务器状态
 
-1. 安装 Tiptap 扩展：
-```bash
-npm install @tiptap/extension-[extension-name]
-```
+### 自定义扩展
 
-2. 在 `collaborative-editor.tsx` 中配置扩展并添加 Tailwind 类：
-```typescript
-import NewExtension from '@tiptap/extension-new-extension'
+**CalendarExtension** - 日历节点扩展：
 
-// 在 extensions 数组中添加
-NewExtension.configure({
-  HTMLAttributes: {
-    class: 'your-tailwind-classes-here',
-  },
-})
-```
+- **React 组件渲染**：使用 ReactNodeViewRenderer
+- **交互式界面**：可编辑标题和选择日期
+- **持久化属性**：日期和标题数据保存
+- **美观样式**：现代化的卡片设计
 
-### 自定义样式
+## 🎨 样式系统
 
-编辑器样式主要通过以下方式管理：
-1. **Tailwind 类**: 在扩展配置中添加 `HTMLAttributes.class`
-2. **特殊样式**: 在 `src/styles/tiptap.css` 中添加无法用 Tailwind 处理的样式
+### Tailwind CSS 4 配置
 
-## 核心组件说明
+项目使用最新的 Tailwind CSS 4：
 
-### CollaborativeEditor
+- **主题系统**：完整的明暗主题支持
+- **CSS 变量**：基于 CSS 变量的颜色系统
+- **组件样式**：通过扩展配置应用 Tailwind 类
+- **最小化 CSS**：只保留 Tailwind 无法处理的样式
 
-主要的协作编辑器组件，集成了：
-- Tiptap 编辑器配置
-- Hocuspocus 提供者连接
-- 用户状态管理
-- 工具栏功能
+### 样式优先级
 
-### ServerStatus
+1. **扩展配置**：通过 Tiptap 扩展的 `HTMLAttributes` 配置
+2. **全局样式**：在 `globals.css` 中的编辑器样式
+3. **组件样式**：在 React 组件中的 Tailwind 类
 
-服务器状态管理组件：
-- 实时显示服务器运行状态
-- 启动/停止服务器控制
-- 连接数监控
-- 自动状态刷新
-
-### Hocuspocus 服务器（API路由）
-
-集成在Next.js中的WebSocket服务器：
-- 端口：1234
-- 支持多文档
-- 用户认证（简化版）
-- 连接状态监控
-- RESTful API控制
-
-## API 端点
+## 🚀 API 接口
 
 ### GET /api/collaboration
-获取服务器状态
+获取协作服务器状态
 ```json
 {
   "running": true,
@@ -164,7 +162,7 @@ NewExtension.configure({
 ```
 
 ### POST /api/collaboration
-启动Hocuspocus服务器
+启动 Hocuspocus 服务器
 ```json
 {
   "success": true,
@@ -176,7 +174,7 @@ NewExtension.configure({
 ```
 
 ### DELETE /api/collaboration
-停止Hocuspocus服务器
+停止 Hocuspocus 服务器
 ```json
 {
   "success": true,
@@ -184,19 +182,63 @@ NewExtension.configure({
 }
 ```
 
-## 开发说明
+## 🔧 开发配置
 
-### 数据持久化
+### 自定义脚本
 
-当前版本不包含数据库，文档内容仅在内存中保存。要添加持久化：
+```json
+{
+  "dev": "npm run stop-server && next dev --turbopack",
+  "stop-server": "lsof -ti:1234 | xargs kill -9 2>/dev/null || true"
+}
+```
 
-1. 在 `src/lib/hocuspocus-server.ts` 中实现 `onStoreDocument` 和 `onLoadDocument` 回调
-2. 连接数据库（如 MongoDB、PostgreSQL 等）
-3. 存储 Yjs 文档状态
+### 核心依赖版本
 
-## 部署
+- `@tiptap/react: ^2.12.0`
+- `@hocuspocus/provider: ^3.1.1` 
+- `@hocuspocus/server: ^3.1.1`
+- `yjs: ^13.6.27`
+- `next: 15.3.2`
+- `react: ^19.0.0`
+
+## 🌟 高级功能
+
+### 协作光标系统
+
+- **颜色分配**：每个用户自动分配唯一颜色
+- **光标标签**：显示用户名称
+- **选中范围**：高亮显示用户选中的文本
+- **实时同步**：光标位置实时更新
+
+### 连接管理
+
+- **自动重连**：网络中断时自动尝试重连
+- **状态同步**：连接状态实时反馈
+- **错误处理**：优雅处理连接错误
+
+### 文档管理
+
+- **多文档支持**：通过文档ID区分不同文档
+- **动态创建**：支持动态创建新文档
+- **文档切换**：无缝切换不同文档
+
+## 📱 测试和调试
+
+### 多用户测试
+
+1. 打开多个浏览器窗口或使用不同设备
+2. 使用相同的文档ID
+3. 观察实时同步效果
+
+### 测试页面
+
+访问 `/test` 路径查看编辑器样式测试页面。
+
+## 🚀 部署指南
 
 ### 开发环境
+
 ```bash
 npm run dev
 ```
@@ -213,40 +255,60 @@ npm run build
 npm start
 ```
 
-3. 通过API启动协作服务器：
+3. 启动协作服务器：
 ```bash
 curl -X POST http://localhost:3000/api/collaboration
 ```
 
-## 优势
+### 环境要求
 
-### 相比独立服务器的优势：
+- Node.js 18+
+- 支持 WebSocket 的环境
+- 端口 1234 可用（用于 WebSocket 服务器）
 
-- ✅ **统一部署**：只需要部署一个Next.js应用
-- ✅ **简化配置**：无需单独配置WebSocket服务器
-- ✅ **状态管理**：通过API统一管理服务器状态
-- ✅ **开发体验**：一个命令启动整个应用
-- ✅ **生产就绪**：更容易部署到云平台
+## 🔮 扩展建议
 
-## 注意事项
+### 即将实现的功能
 
-- 服务器需要手动启动（通过界面或API）
-- 多用户测试时使用相同的文档ID
-- 当前版本为 Demo，不包含用户认证和数据持久化
-- 生产环境需要配置 HTTPS 和 WSS
-
-## 扩展功能建议
-
+- [ ] 数据持久化（数据库集成）
 - [ ] 用户认证系统
 - [ ] 文档权限管理
-- [ ] 数据库持久化
-- [ ] 文档版本历史
+- [ ] 版本历史记录
 - [ ] 评论系统
-- [ ] 文件上传
+- [ ] 文件上传功能
 - [ ] 导出功能（PDF、Word等）
-- [ ] 主题切换
-- [ ] 自动启动服务器
+- [ ] 更多自定义扩展
 
-## 许可证
+### 自定义扩展开发
+
+1. 创建扩展文件：
+```typescript
+// src/lib/your-extension.ts
+import { Node } from '@tiptap/core'
+
+export const YourExtension = Node.create({
+  name: 'yourNode',
+  // 配置...
+})
+```
+
+2. 在编辑器中注册：
+```typescript
+// collaborative-editor.tsx
+import { YourExtension } from '@/lib/your-extension'
+
+// 在 extensions 数组中添加
+YourExtension.configure({
+  HTMLAttributes: {
+    class: 'your-tailwind-classes',
+  },
+})
+```
+
+## 🤝 贡献指南
+
+欢迎提交 Issue 和 Pull Request 来改进这个项目！
+
+## �� 许可证
 
 MIT License
