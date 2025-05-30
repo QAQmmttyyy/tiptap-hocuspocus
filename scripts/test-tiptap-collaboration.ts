@@ -44,35 +44,14 @@ const globalResources = {
 }
 
 // 全局变量设置
-/* eslint-disable no-var */
-declare global {
-  var window: unknown
-  var document: unknown
-  var navigator: unknown
-  var HTMLElement: unknown
-  var Element: unknown
-  var Node: unknown
-  var Text: unknown
-  var Comment: unknown
-  var DocumentFragment: unknown
-  var DOMParser: unknown
-  var XMLSerializer: unknown
-  var MutationObserver: unknown
-  var Event: unknown
-  var EventTarget: unknown
-  var CustomEvent: unknown
-  var Range: unknown
-  var Selection: unknown
-  var WebSocket: unknown
-}
-/* eslint-enable no-var */
-
-global.window = dom.window
-global.document = dom.window.document
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const globalWindow = global as any
+globalWindow.window = dom.window
+globalWindow.document = dom.window.document
 
 // 处理只读属性
 try {
-  global.navigator = dom.window.navigator
+  globalWindow.navigator = dom.window.navigator
 } catch {
   Object.defineProperty(global, 'navigator', {
     value: dom.window.navigator,
@@ -81,24 +60,24 @@ try {
   })
 }
 
-global.HTMLElement = dom.window.HTMLElement
-global.Element = dom.window.Element
-global.Node = dom.window.Node
-global.Text = dom.window.Text
-global.Comment = dom.window.Comment
-global.DocumentFragment = dom.window.DocumentFragment
-global.DOMParser = dom.window.DOMParser
-global.XMLSerializer = dom.window.XMLSerializer
-global.MutationObserver = dom.window.MutationObserver
-global.Event = dom.window.Event
-global.EventTarget = dom.window.EventTarget
-global.CustomEvent = dom.window.CustomEvent
-global.Range = dom.window.Range
-global.Selection = dom.window.Selection
+globalWindow.HTMLElement = dom.window.HTMLElement
+globalWindow.Element = dom.window.Element
+globalWindow.Node = dom.window.Node
+globalWindow.Text = dom.window.Text
+globalWindow.Comment = dom.window.Comment
+globalWindow.DocumentFragment = dom.window.DocumentFragment
+globalWindow.DOMParser = dom.window.DOMParser
+globalWindow.XMLSerializer = dom.window.XMLSerializer
+globalWindow.MutationObserver = dom.window.MutationObserver
+globalWindow.Event = dom.window.Event
+globalWindow.EventTarget = dom.window.EventTarget
+globalWindow.CustomEvent = dom.window.CustomEvent
+globalWindow.Range = dom.window.Range
+globalWindow.Selection = dom.window.Selection
 
 // WebSocket设置
-if (!global.WebSocket) {
-  global.WebSocket = WebSocket
+if (!globalWindow.WebSocket) {
+  globalWindow.WebSocket = WebSocket
 }
 
 // 测试配置
@@ -132,10 +111,17 @@ interface EditOperation {
   delay?: number
 }
 
+interface TestResult {
+  documentId: string
+  finalContent?: string
+  savedDocument?: TestDocument | null
+  loadedContent?: string
+}
+
 interface TestResults {
-  test1?: unknown
-  test2?: unknown
-  test3?: unknown
+  test1?: TestResult
+  test2?: TestResult
+  test3?: TestResult
 }
 
 // 颜色输出
@@ -309,7 +295,8 @@ async function cleanupTestDocuments(): Promise<void> {
     if (globalResources.testDocumentIds.size > 0) {
       log(`📄 清理本次测试创建的 ${globalResources.testDocumentIds.size} 个文档...`, 'cyan')
       
-      for (const documentId of globalResources.testDocumentIds) {
+      const documentIds = Array.from(globalResources.testDocumentIds)
+      for (const documentId of documentIds) {
         try {
           const response = await fetch(`${API_BASE}/documents/${documentId}`, {
             method: 'DELETE'
@@ -578,18 +565,22 @@ function createTiptapEditor(documentId: string, userName: string, userColor: str
       },
       onSynced() {
         log(`🔄 ${userName} 同步完成`, 'green')
-      },
-      onStatus({ status }: { status: string }) {
-        log(`📊 ${userName} 状态变化: ${status}`, 'cyan')
       }
     })
 
     // 注册到全局资源追踪
     globalResources.providers.add(provider)
 
+    // 获取DOM元素
+    const editorElement = dom.window.document.getElementById('editor')
+    if (!editorElement) {
+      reject(new Error('找不到编辑器DOM元素'))
+      return
+    }
+
     // 创建编辑器实例
     const editor = new Editor({
-      element: document.getElementById('editor'),
+      element: editorElement,
       extensions: [
         StarterKit.configure({
           history: false, // 禁用历史，使用协作历史
@@ -644,7 +635,8 @@ async function simulateEditing(editorInstance: EditorInstance, userName: string,
   
   log(`✏️ ${userName} 开始编辑操作...`, 'blue')
   
-  for (const [index, operation] of operations.entries()) {
+  const operationsWithIndex = Array.from(operations.entries())
+  for (const [index, operation] of operationsWithIndex) {
     try {
       switch (operation.type) {
         case 'insertText':
@@ -861,7 +853,7 @@ async function test3_DocumentLoading(existingDocumentId: string) {
     cleanupEditorInstance(editorInstance)
     
     log(`✅ 文档加载测试完成`, 'green')
-    return { loadedContent }
+    return { documentId: existingDocumentId, loadedContent }
     
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -915,7 +907,7 @@ async function runTiptapCollaborationTests(): Promise<TestResults> {
     log('\n📋 开始执行测试套件...', 'blue')
     results.test1 = await test1_SingleUserEditing()
     results.test2 = await test2_MultiUserCollaboration()
-    results.test3 = await test3_DocumentLoading(results.test1?.documentId)
+    results.test3 = await test3_DocumentLoading(results.test1.documentId)
     
     // 5. 最终数据库状态检查
     log('\n🔍 最终数据库状态检查...', 'blue')
@@ -960,7 +952,10 @@ async function runTiptapCollaborationTests(): Promise<TestResults> {
 }
 
 // 检查是否为直接执行
-if (import.meta.url === `file://${process.argv[1]}`) {
+const currentFilePath = process.argv[1]
+const isMainFile = currentFilePath && currentFilePath.includes('test-tiptap-collaboration')
+
+if (isMainFile) {
   runTiptapCollaborationTests()
     .then(() => {
       log('\n🎊 测试成功完成！系统完全独立运行正常', 'green')
