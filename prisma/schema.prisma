@@ -12,3 +12,66 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+// ================================
+// 核心数据模型 - 第一阶段简化版
+// ================================
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?  @unique  // 可选，便于测试
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // 关联关系
+  documents      Document[]
+  collaborations DocumentCollaborator[]
+  
+  @@map("users")
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  content     Bytes?   // Yjs 文档状态（二进制数据）
+  isPublic    Boolean  @default(false)
+  version     Int      @default(0)  // 版本控制
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // 关联关系
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  collaborators DocumentCollaborator[]
+  
+  @@map("documents")
+}
+
+model DocumentCollaborator {
+  id         String           @id @default(cuid())
+  userId     String
+  documentId String
+  role       CollaboratorRole @default(EDITOR)
+  createdAt  DateTime         @default(now())
+  
+  // 关联关系
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  // 确保一个用户在一个文档中只能有一个角色
+  @@unique([userId, documentId])
+  @@map("document_collaborators")
+}
+
+// ================================
+// 枚举类型
+// ================================
+
+enum CollaboratorRole {
+  OWNER    // 文档拥有者
+  EDITOR   // 编辑者
+  VIEWER   // 查看者
+}
