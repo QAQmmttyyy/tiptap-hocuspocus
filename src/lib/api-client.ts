@@ -31,6 +31,49 @@ interface APIDocumentResponse {
   updatedAt: string
 }
 
+// 真实API响应格式
+interface APIDocumentsResponse {
+  success: boolean
+  data: {
+    documents: {
+      id: string
+      title: string
+      description: string
+      isPublic: boolean
+      version: number
+      createdAt: string
+      updatedAt: string
+      author: {
+        id: string
+        name: string
+        avatar: string
+      }
+      collaborators: Array<{
+        id: string
+        userId: string
+        documentId: string
+        role: string
+        createdAt: string
+        user: {
+          id: string
+          name: string
+          avatar: string
+        }
+      }>
+      _count: {
+        collaborators: number
+      }
+    }[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      totalPages: number
+      hasMore: boolean
+    }
+  }
+}
+
 class APIClient {
   private baseURL: string
 
@@ -40,15 +83,24 @@ class APIClient {
 
   // 文档相关API
   async getDocuments(): Promise<Document[]> {
+    console.log('📖 API调用: GET /api/documents')
     const response = await fetch(`${this.baseURL}/documents`)
     if (!response.ok) {
       throw new Error('Failed to fetch documents')
     }
-    const data: APIDocumentResponse[] = await response.json()
-    return data.map((doc) => ({
-      ...doc,
+    const apiResponse: APIDocumentsResponse = await response.json()
+    
+    // 适配真实API响应格式: { success: true, data: { documents: [...] } }
+    const documents = apiResponse.success ? apiResponse.data.documents : []
+    console.log(`✅ 成功获取文档列表: ${documents.length} 个文档`)
+    
+    return documents.map((doc) => ({
+      id: doc.id,
+      title: doc.title,
+      content: doc.description, // API返回的是description字段
       createdAt: new Date(doc.createdAt),
       updatedAt: new Date(doc.updatedAt),
+      isDirty: false, // 默认为false
     }))
   }
 
