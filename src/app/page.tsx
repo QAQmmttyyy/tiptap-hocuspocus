@@ -6,6 +6,7 @@ import ServerStatus from '@/components/server-status'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import Link from 'next/link'
 
 export default function Home() {
   const [documentId, setDocumentId] = useState('demo-document')
@@ -36,12 +37,19 @@ export default function Home() {
             >
               ← 返回首页
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={handleNewDocument}
-            >
-              新建文档
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handleNewDocument}
+              >
+                新建文档
+              </Button>
+              <Button asChild>
+                <Link href="/documents">
+                  🚀 体验新版文档管理
+                </Link>
+              </Button>
+            </div>
           </div>
           
           <ServerStatus />
@@ -102,6 +110,21 @@ export default function Home() {
             >
               创建新文档
             </Button>
+
+            {/* 新功能预览按钮 */}
+            <div className="pt-4 border-t">
+              <Button 
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" 
+                asChild
+              >
+                <Link href="/documents">
+                  🚀 体验新版文档管理系统
+                </Link>
+              </Button>
+              <p className="text-xs text-center text-muted-foreground mt-2">
+                VS Code 风格的标签页 + 侧边栏导航
+              </p>
+            </div>
           </div>
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
