@@ -1,18 +1,12 @@
 'use client'
 
 import { QueryProvider } from '@/components/providers/query-provider'
-import { ResponsiveLayout } from '@/components/layout/responsive-layout'
+import ResponsiveLayout from '@/components/layout/responsive-layout'
 
-export default function DocumentsLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function DocumentsLayout() {
   return (
     <QueryProvider>
-      <ResponsiveLayout>
-        {children}
-      </ResponsiveLayout>
+      <ResponsiveLayout />
     </QueryProvider>
   )
 } 

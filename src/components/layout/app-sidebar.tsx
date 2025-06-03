@@ -1,38 +1,39 @@
 'use client'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarHeader, 
+import {
+  Sidebar,
+  SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSkeleton
+  SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
-import { useSidebarStore } from '@/lib/stores/sidebar-store'
-import { useDocuments } from '@/hooks/use-documents'
-import { useTempAuth } from '@/hooks/use-temp-auth'
-import { 
-  Search, 
-  Plus, 
-  File, 
-  Star,
+import {
+  Bell,
   Clock,
+  Command as CommandIcon,
+  File,
   Filter,
+  Plus,
+  Search,
+  Settings,
   SortAsc,
   SortDesc,
-  Settings,
+  Star,
   User,
-  Bell,
-  Command as CommandIcon
 } from 'lucide-react'
+import { useTempAuth } from '@/hooks/use-temp-auth'
+import { useDocuments } from '@/hooks/use-documents'
+import { useTabStore } from '@/lib/stores/tab-store'
+import { useSidebarStore } from '@/lib/stores/sidebar-store'
 
 export function AppSidebar() {
   const { 
@@ -198,10 +199,14 @@ export function AppSidebar() {
                 documents.map((doc) => (
                   <SidebarMenuItem key={doc.id}>
                     <SidebarMenuButton 
-                      asChild 
-                      className="h-auto py-2.5 px-3 hover:bg-muted/80 data-[active=true]:bg-muted"
+                      className="h-auto py-2.5 px-3 hover:bg-muted/80 data-[active=true]:bg-muted cursor-pointer"
+                      onClick={() => {
+                        // 使用标签页系统打开文档
+                        const { openTab } = useTabStore.getState()
+                        openTab(doc)
+                      }}
                     >
-                      <a href={`/documents/${doc.id}`} className="flex items-start gap-3">
+                      <div className="flex items-start gap-3 w-full">
                         <File className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
@@ -216,7 +221,7 @@ export function AppSidebar() {
                             {formatDate(doc.updatedAt)}
                           </div>
                         </div>
-                      </a>
+                      </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))
