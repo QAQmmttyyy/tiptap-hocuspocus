@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useState } from 'react'
 import DocEditor from '@/components/doc-editor'
@@ -7,10 +7,12 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
-  const [documentId, setDocumentId] = useState('demo-document')
-  const [userName, setUserName] = useState('')
+  const router = useRouter()
+  const [documentId, setDocumentId] = useState("demo-document")
+  const [userName, setUserName] = useState("")
   const [isEditing, setIsEditing] = useState(false)
 
   const handleStartEditing = () => {
@@ -31,10 +33,7 @@ export default function Home() {
       <main className="min-h-screen bg-gray-50 py-8">
         <div className="container mx-auto">
           <div className="mb-4 flex justify-between items-center">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditing(false)}
-            >
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
               ← 返回首页
             </Button>
             <div className="flex gap-2">
@@ -44,6 +43,15 @@ export default function Home() {
               >
                 新建文档
               </Button>
+
+              <Button
+                onClick={() => {
+                  router.push("/workflow")
+                }}
+              >
+                新建工作流
+              </Button>
+
               <Button asChild>
                 <Link href="/documents">
                   🚀 体验新版文档管理
@@ -51,7 +59,7 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          
+
           <ServerStatus />
           
           <DocEditor 
@@ -67,7 +75,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <ServerStatus />
-        
+
         <Card className="p-6">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold mb-2">实时协作文档</h1>
@@ -95,19 +103,11 @@ export default function Home() {
               />
             </div>
 
-            <Button 
-              className="w-full" 
-              onClick={handleStartEditing}
-              disabled={!documentId.trim()}
-            >
+            <Button className="w-full" onClick={handleStartEditing} disabled={!documentId.trim()}>
               开始协作编辑
             </Button>
 
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              onClick={handleNewDocument}
-            >
+            <Button variant="outline" className="w-full" onClick={handleNewDocument}>
               创建新文档
             </Button>
 
