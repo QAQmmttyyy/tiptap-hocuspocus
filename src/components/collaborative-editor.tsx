@@ -60,7 +60,7 @@ export default function CollaborativeEditor({
     })
 
     return () => {
-      hocuspocusProvider.detach()
+      hocuspocusProvider.destroy()
     }
   }, [documentId])
 

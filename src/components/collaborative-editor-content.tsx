@@ -34,7 +34,6 @@ export default function CollaborativeEditorContent({
 	 * after you have filled the editor with the desired content.
 	 */
   Y.applyUpdate(provider.document, Y.encodeStateAsUpdate(provider.document));
-  console.log(Y.encodeStateAsUpdate(provider.document).toString());
 
   const editor = useEditor(
     {

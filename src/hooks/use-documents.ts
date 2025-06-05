@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient, type Document, type CreateDocumentRequest } from '@/lib/api-client'
+import { apiClient, type CreateDocumentRequest } from '@/lib/api-client'
 import { queryKeys } from '@/lib/query-client'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
 import { useMemo } from 'react'
@@ -43,7 +43,7 @@ export function useDocuments() {
     
     // 排序
     documents.sort((a, b) => {
-      let aValue: any, bValue: any
+      let aValue: string | number, bValue: string | number
       
       switch (sortBy) {
         case 'title':

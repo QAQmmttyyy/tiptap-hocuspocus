@@ -22,13 +22,18 @@ interface User {
   color: string
 }
 
-// API响应类型
-interface APIDocumentResponse {
-  id: string
-  title: string
-  content?: string
-  createdAt: string
-  updatedAt: string
+// 嵌套的API响应格式
+interface APINestedDocumentResponse {
+  success: boolean
+  data: {
+    document: {
+      id: string
+      title: string
+      description?: string
+      createdAt: string
+      updatedAt: string
+    }
+  }
 }
 
 // 真实API响应格式
@@ -111,9 +116,18 @@ class APIClient {
         if (response.status === 404) return null
         throw new Error('Failed to fetch document')
       }
-      const doc: APIDocumentResponse = await response.json()
+      
+      const apiResponse: APINestedDocumentResponse = await response.json()
+      
+      if (!apiResponse.success || !apiResponse.data || !apiResponse.data.document) {
+        return null
+      }
+      
+      const doc = apiResponse.data.document
       return {
-        ...doc,
+        id: doc.id,
+        title: doc.title,
+        content: doc.description,
         createdAt: new Date(doc.createdAt),
         updatedAt: new Date(doc.updatedAt),
       }
@@ -136,9 +150,17 @@ class APIClient {
       throw new Error('Failed to create document')
     }
     
-    const doc: APIDocumentResponse = await response.json()
+    const apiResponse: APINestedDocumentResponse = await response.json()
+    
+    if (!apiResponse.success || !apiResponse.data || !apiResponse.data.document) {
+      throw new Error('Invalid API response format')
+    }
+    
+    const doc = apiResponse.data.document
     return {
-      ...doc,
+      id: doc.id,
+      title: doc.title,
+      content: doc.description,
       createdAt: new Date(doc.createdAt),
       updatedAt: new Date(doc.updatedAt),
     }
@@ -157,9 +179,17 @@ class APIClient {
       throw new Error('Failed to update document')
     }
     
-    const doc: APIDocumentResponse = await response.json()
+    const apiResponse: APINestedDocumentResponse = await response.json()
+    
+    if (!apiResponse.success || !apiResponse.data || !apiResponse.data.document) {
+      throw new Error('Invalid API response format')
+    }
+    
+    const doc = apiResponse.data.document
     return {
-      ...doc,
+      id: doc.id,
+      title: doc.title,
+      content: doc.description,
       createdAt: new Date(doc.createdAt),
       updatedAt: new Date(doc.updatedAt),
     }

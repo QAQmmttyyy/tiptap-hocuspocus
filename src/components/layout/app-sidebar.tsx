@@ -34,6 +34,7 @@ import { useTempAuth } from '@/hooks/use-temp-auth'
 import { useDocuments } from '@/hooks/use-documents'
 import { useTabStore } from '@/lib/stores/tab-store'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
+import { CreateDocumentDialog } from '@/components/document/create-document-dialog'
 
 export function AppSidebar() {
   const { 
@@ -102,10 +103,7 @@ export function AppSidebar() {
         )}
 
         {/* 新建文档按钮 */}
-        <Button size="sm" className="w-full h-9 font-medium shadow-sm">
-          <Plus className="h-4 w-4 mr-2" />
-          新建文档
-        </Button>
+        <CreateDocumentDialog />
       </SidebarHeader>
 
       {/* 内容区 */}
@@ -238,10 +236,14 @@ export function AppSidebar() {
                     <p className="text-xs text-muted-foreground/70 mb-4">
                       {searchQuery ? '尝试其他搜索词' : '开始创建您的第一个文档'}
                     </p>
-                    <Button variant="outline" size="sm" className="h-8">
-                      <Plus className="h-3 w-3 mr-1.5" />
-                      创建文档
-                    </Button>
+                    <CreateDocumentDialog 
+                      trigger={
+                        <Button variant="outline" size="sm" className="h-8">
+                          <Plus className="h-3 w-3 mr-1.5" />
+                          创建文档
+                        </Button>
+                      } 
+                    />
                   </div>
                 </SidebarMenuItem>
               )}
