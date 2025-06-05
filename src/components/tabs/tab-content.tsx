@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { useTabStore } from '@/lib/stores/tab-store'
-import CollaborativeEditor from '@/components/collaborative-editor'
+import DocEditor from '@/components/doc-editor'
 import { useTempAuth } from '@/hooks/use-temp-auth'
 import { cn } from '@/lib/utils'
 
@@ -75,7 +75,7 @@ export default function TabContent({ className }: TabContentProps) {
   
   return (
     <div className={cn("flex-1 h-full overflow-hidden", className)}>
-      <CollaborativeEditor 
+      <DocEditor 
         documentId={activeTab.documentId}
         userName={user.name}
         key={activeTab.id} // 重要：使用tab.id作为key，确保编辑器实例独立

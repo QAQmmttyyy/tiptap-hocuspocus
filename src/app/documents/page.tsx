@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import CollaborativeEditor from '@/components/collaborative-editor'
+import DocEditor from '@/components/doc-editor'
 import { useTempAuth } from '@/hooks/use-temp-auth'
 
 export default function DocumentsPage() {
@@ -11,7 +11,7 @@ export default function DocumentsPage() {
   return (
     <div className="h-full w-full overflow-hidden">
       {user ? (
-        <CollaborativeEditor 
+        <DocEditor 
           documentId={documentId} 
           userName={user.name}
         />

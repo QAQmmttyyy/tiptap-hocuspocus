@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import CollaborativeEditor from '@/components/collaborative-editor'
+import DocEditor from '@/components/doc-editor'
 import ServerStatus from '@/components/server-status'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -54,7 +54,7 @@ export default function Home() {
           
           <ServerStatus />
           
-          <CollaborativeEditor 
+          <DocEditor 
             documentId={documentId} 
             userName={userName}
           />
