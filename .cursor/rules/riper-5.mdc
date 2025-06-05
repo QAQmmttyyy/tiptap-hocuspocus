@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html class="html-devise-layout gl-light" lang="en">
+<head prefix="og: http://ogp.me/ns#">
+<meta charset="utf-8">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<title>Sign in · JiHu GitLab</title>
+<script>
+//<![CDATA[
+window.gon={};
+//]]>
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/assets/application-25cae5e0f233d0e0343ebf929cd118994c16f11fe2e1986d6eb113183e34e7d8.css" />
+<link rel="stylesheet" href="/assets/page_bundles/signin-78d9f4c1b5d69fdea65e937acc9088a53917fefe45b903cf807f660adb4cd26d.css" /><link rel="stylesheet" href="/assets/page_bundles/login-c86aaeb732c7cd4528094f168b9ad4a0408b971bd952f45a9a4dd714d1c9ecb1.css" /><link rel="stylesheet" href="/assets/page_bundles/commit_description-1e2cba4dda3c7b30dd84924809020c569f1308dea51520fe1dd5d4ce31403195.css" /><link rel="stylesheet" href="/assets/page_bundles/work_items-22a76cdd1fe2ae5431b7ff603f86212acaf81b49c4a932f19e3b3222dc1881ee.css" /><link rel="stylesheet" href="/assets/page_bundles/notes_shared-30de79203a0836dddd3a4cf7364d63afb16a0f2deb0bbc654b00692872696739.css" />
+<link rel="stylesheet" href="/assets/application_utilities-58bec0f2dc46133fc9e8548af9854688398e9d7263cc0fd95ec5739f2a069dec.css" />
+<link rel="stylesheet" href="/assets/tailwind-eecdc60729b50dce0d7fb5754c497b190ca487c0da37b3f0e9fb3ec55c7f059a.css" />
+
+
+<link rel="stylesheet" href="/assets/fonts-fae5d3f79948bd85f18b6513a025f863b19636e85b09a1492907eb4b1bb0557b.css" />
+<link rel="stylesheet" href="/assets/highlight/themes/white-99cce4f4b362f6840d7134d4129668929fde49c4da11d6ebf17f99768adbd868.css" />
+
+
+<link rel="preload" href="/assets/application_utilities-58bec0f2dc46133fc9e8548af9854688398e9d7263cc0fd95ec5739f2a069dec.css" as="style" type="text/css">
+<link rel="preload" href="/assets/application-25cae5e0f233d0e0343ebf929cd118994c16f11fe2e1986d6eb113183e34e7d8.css" as="style" type="text/css">
+<link rel="preload" href="/assets/highlight/themes/white-99cce4f4b362f6840d7134d4129668929fde49c4da11d6ebf17f99768adbd868.css" as="style" type="text/css">
+
+<script src="/assets/locale/en/app-910a225d61dc4ff0a232cccdfcc28dc5ef049f5bb1856a68ec8a9cdefa15379e.js" defer="defer"></script>
+
+
+<script src="/assets/webpack/runtime.3614219a.bundle.js" defer="defer"></script>
+<script src="/assets/webpack/main.64219b5c.chunk.js" defer="defer"></script>
+<script src="/assets/webpack/commons-pages.search.show-super_sidebar.a4a9cc3e.chunk.js" defer="defer"></script>
+<script src="/assets/webpack/super_sidebar.3a2f3661.chunk.js" defer="defer"></script>
+<script src="/assets/webpack/pages.sessions.new.9c7697a2.chunk.js" defer="defer"></script>
+
+
+
+
+<meta content="object" property="og:type">
+<meta content="JiHu GitLab" property="og:site_name">
+<meta content="Sign in · JiHu GitLab" property="og:title">
+<meta content="JiHu GitLab" property="og:description">
+<meta content="https://git.basevec.com/assets/twitter_card-67324091d206ba0e63f4810d745f0b886bedcaa9fa620763cfb90bf3fc9c05f2.jpg" property="og:image">
+<meta content="64" property="og:image:width">
+<meta content="64" property="og:image:height">
+<meta content="https://git.basevec.com/users/sign_in" property="og:url">
+<meta content="summary" property="twitter:card">
+<meta content="Sign in · JiHu GitLab" property="twitter:title">
+<meta content="JiHu GitLab" property="twitter:description">
+<meta content="https://git.basevec.com/assets/twitter_card-67324091d206ba0e63f4810d745f0b886bedcaa9fa620763cfb90bf3fc9c05f2.jpg" property="twitter:image">
+
+<meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="DBue5D14ukTTxvS6JQ0j1_g4JZC7b7cga4iuoXkXQ49z4V_y5QAG7_1Mfr5TPqVpsXYIDIyYCrrGZfvDY5sGIg" />
+<meta name="csp-nonce" />
+<meta name="action-cable-url" content="/-/cable" />
+<link href="/-/manifest.json" rel="manifest">
+<link rel="icon" type="image/png" href="/assets/favicon-72a2cad5025aa931d6ea56c3201d1f18e68a8cd39788c7c80d5b2b82aa5143ef.png" id="favicon" data-original-href="/assets/favicon-72a2cad5025aa931d6ea56c3201d1f18e68a8cd39788c7c80d5b2b82aa5143ef.png" />
+<link rel="apple-touch-icon" type="image/x-icon" href="/assets/apple-touch-icon-b049d4bc0dd9626f31db825d61880737befc7835982586d015bded10b4435460.png" />
+<link href="/search/opensearch.xml" rel="search" title="Search GitLab" type="application/opensearchdescription+xml">
+
+
+
+<!-- Tencent RUM -->
+<!-- End Tencent Code -->
+
+<meta content="JiHu GitLab" name="description">
+<meta content="#ececef" name="theme-color">
+</head>
+
+<body class="gl-h-full login-page navless [] gl-browser-generic gl-platform-other" data-page="sessions:new" data-qa-selector="login_page" data-testid="login-page">
+<div class="jh-language-switcher position-fixed gl-flex gl-items-center gl-top-0 gl-right-0 gl-flex-row-reverse pr-3" style="height: 40px; z-index: 250;">
+<div class="js-language-switcher" data-locales="[{&quot;value&quot;:&quot;en&quot;,&quot;percentage&quot;:100,&quot;text&quot;:&quot;English&quot;},{&quot;value&quot;:&quot;ja&quot;,&quot;percentage&quot;:99,&quot;text&quot;:&quot;日本語&quot;},{&quot;value&quot;:&quot;fr&quot;,&quot;percentage&quot;:98,&quot;text&quot;:&quot;français&quot;},{&quot;value&quot;:&quot;de&quot;,&quot;percentage&quot;:97,&quot;text&quot;:&quot;Deutsch&quot;},{&quot;value&quot;:&quot;pt_BR&quot;,&quot;percentage&quot;:92,&quot;text&quot;:&quot;português (Brasil)&quot;}]"></div>
+
+</div>
+
+<script>
+//<![CDATA[
+gl = window.gl || {};
+gl.client = {"isGeneric":true,"isOther":true};
+
+
+//]]>
+</script>
+
+
+
+
+<div class="gl-h-full borderless gl-flex gl-flex-wrap">
+<div class="container">
+<div class="content">
+<div class="flash-container flash-container-page sticky" data-testid="flash-container">
+<div id="js-global-alerts"></div>
+</div>
+
+<div class="mt-3">
+<div class="col-sm-12 gl-text-center">
+<img alt="JiHu GitLab" class="gl-invisible gl-h-10 js-portrait-logo-detection lazy" data-src="/assets/logo-51e8cb6dc5a55e338ecf06362038ffa9227623ba3766a8e1710fd0da0b433521.svg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" />
+<h1 class="mb-3 gl-text-size-h2">
+JiHu GitLab
+</h1>
+
+
+</div>
+</div>
+<div class="mb-3">
+<div class="gl-xs-w-full gl-ml-auto gl-mr-auto bar sm:gl-w-1/2">
+
+<div class="js-non-oauth-login">
+<form class="gl-show-field-errors js-arkose-labs-form" aria-live="assertive" data-testid="sign-in-form" action="/users/sign_in" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="NK_xGCp66MsAbZxjJFu0FCQZwEcLahslbadenorAsIhLVTAO8gJUYC7nFmdSaDKqbVft2zydpr_ASgv8kEz1JQ" autocomplete="off" /><div class="form-group">
+<label for="user_login">Username or primary email</label>
+<input class="form-control gl-form-input js-username-field" autocomplete="username" autofocus="autofocus" autocapitalize="off" autocorrect="off" required="required" title="This field is required." data-a-selector="login_field" data-testid="username-field" type="text" name="user[login]" id="user_login" />
+</div>
+<div class="form-group">
+<label for="user_password">Password</label>
+<input class="form-control gl-form-input js-password" data-id="user_password" data-name="user[password]" data-qa-selector="password_field" data-testid="password-field" type="password" name="user[password]" id="user_password" />
+<div class="form-text gl-text-right">
+<a href="/users/password/new">Forgot your password?</a>
+</div>
+</div>
+<div class="form-group">
+</div>
+<div class="gl-form-checkbox custom-control custom-checkbox">
+<input name="user[remember_me]" type="hidden" value="0" autocomplete="off" /><input autocomplete="off" class="custom-control-input" type="checkbox" value="1" name="user[remember_me]" id="user_remember_me" />
+<label class="custom-control-label" for="user_remember_me"><span>Remember me</span></label>
+</div>
+
+<button class="gl-button btn btn-block btn-md btn-confirm js-sign-in-button" data-qa-selector="sign_in_button" data-testid="sign-in-button" type="submit"><span class="gl-button-text">
+Sign in
+
+</span>
+
+</button></form>
+</div>
+<p class="gl-mt-3">
+By signing in you accept the <a href='/-/users/terms' target='_blank' rel='noreferrer noopener'>Terms of Use and acknowledge the Privacy Statement and Cookie Policy</a>.
+</p>
+
+</div>
+</div>
+</div>
+</div>
+<div class="footer-container gl-w-full gl-self-end">
+<hr class="gl-m-0">
+<div class="container gl-py-5 gl-flex gl-justify-between">
+<div class="gl-flex gl-gap-5 gl-flex-wrap gl-w-full">
+<a href="/explore">Explore</a>
+<a href="/help">Help</a>
+<a href="https://about.gitlab.cn">About JiHu GitLab</a>
+</div>
+<div class="js-language-switcher" data-locales="[{&quot;value&quot;:&quot;en&quot;,&quot;percentage&quot;:100,&quot;text&quot;:&quot;English&quot;},{&quot;value&quot;:&quot;ja&quot;,&quot;percentage&quot;:99,&quot;text&quot;:&quot;日本語&quot;},{&quot;value&quot;:&quot;fr&quot;,&quot;percentage&quot;:98,&quot;text&quot;:&quot;français&quot;},{&quot;value&quot;:&quot;de&quot;,&quot;percentage&quot;:97,&quot;text&quot;:&quot;Deutsch&quot;},{&quot;value&quot;:&quot;pt_BR&quot;,&quot;percentage&quot;:92,&quot;text&quot;:&quot;português (Brasil)&quot;}]"></div>
+
+</div>
+</div>
+
+
+</div>
+</body>
+</html>
