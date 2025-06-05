@@ -18,6 +18,7 @@ declare module "@tiptap/core" {
         steps?: string[]
         invocationId?: string
         executionState?: any
+        finalSummary?: string
       }) => ReturnType
     }
   }
@@ -101,6 +102,18 @@ export const WorkflowExtension = Node.create<WorkflowOptions>({
           }
           return {
             "data-execution-state": JSON.stringify(attributes.executionState),
+          }
+        },
+      },
+      finalSummary: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-final-summary"),
+        renderHTML: (attributes) => {
+          if (!attributes.finalSummary) {
+            return {}
+          }
+          return {
+            "data-final-summary": attributes.finalSummary,
           }
         },
       },

@@ -104,9 +104,29 @@ export const useWorkflowNode = () => {
 
   // 判断步骤状态
   const getStepStatus = useCallback((stepIndex: number, invocation?: WorkflowExecutionState) => {
-    const isCurrentStep = invocation && parseInt(invocation.current_step) === stepIndex
-    const isCompleted = invocation && parseInt(invocation.current_step) > stepIndex
-    const isAllCompleted = invocation?.status === "completed"
+    if (!invocation) {
+      return {
+        isCurrentStep: false,
+        isCompleted: false,
+        isAllCompleted: false,
+      }
+    }
+
+    const currentStepIndex = parseInt(invocation.current_step)
+    const isAllCompleted = invocation.status === "completed"
+
+    // 如果工作流完成，所有步骤都是完成状态
+    if (isAllCompleted) {
+      return {
+        isCurrentStep: false,
+        isCompleted: true,
+        isAllCompleted: true,
+      }
+    }
+
+    // 工作流执行中的状态判断
+    const isCurrentStep = currentStepIndex === stepIndex && invocation.status === "started"
+    const isCompleted = currentStepIndex > stepIndex
 
     return {
       isCurrentStep,
@@ -137,6 +157,58 @@ export const useWorkflowNode = () => {
 
         if (stepLogs.length > 0) {
           setExpandedSteps((prev) => new Set([...prev, currentStep]))
+        }
+      }
+    },
+    [getStepLogs],
+  )
+
+  // 工作流完成后自动展开所有有日志的步骤
+  const autoExpandStepsWithLogs = useCallback(
+    (invocation?: WorkflowExecutionState) => {
+      if (invocation && invocation.status === "completed" && invocation.execution_log) {
+        const stepsWithLogs: number[] = []
+
+        // 从 execution_log 的键中提取所有可能的步骤索引
+        const logKeys = Object.keys(invocation.execution_log)
+        const stepIndexes: number[] = []
+
+        for (const key of logKeys) {
+          // 尝试解析不同格式的键名为步骤索引
+          let stepIndex: number | null = null
+
+          if (/^\d+$/.test(key)) {
+            // 纯数字键 (如 "0", "1", "2")
+            stepIndex = parseInt(key)
+          } else if (key.startsWith("step_")) {
+            // step_ 格式 (如 "step_0", "step_1")
+            stepIndex = parseInt(key.replace("step_", ""))
+          } else if (key.startsWith("Step ")) {
+            // Step 格式 (如 "Step 0", "Step 1")
+            const stepNum = parseInt(key.replace("Step ", ""))
+            stepIndex = stepNum > 0 ? stepNum - 1 : stepNum // Step 通常从1开始，转换为0开始的索引
+          }
+
+          if (
+            stepIndex !== null &&
+            !isNaN(stepIndex) &&
+            stepIndex >= 0 &&
+            !stepIndexes.includes(stepIndex)
+          ) {
+            stepIndexes.push(stepIndex)
+          }
+        }
+
+        // 对于找到的每个步骤索引，检查是否有日志
+        for (const stepIndex of stepIndexes) {
+          const stepLogs = getStepLogs(stepIndex, invocation)
+          if (stepLogs.length > 0) {
+            stepsWithLogs.push(stepIndex)
+          }
+        }
+
+        if (stepsWithLogs.length > 0) {
+          setExpandedSteps((prev) => new Set([...prev, ...stepsWithLogs]))
         }
       }
     },
@@ -190,6 +262,7 @@ export const useWorkflowNode = () => {
     // 操作函数
     toggleStepExpansion,
     autoExpandCurrentStep,
+    autoExpandStepsWithLogs,
     clearExpandedSteps,
     startExecution,
     stopExecution,
