@@ -1,8 +1,9 @@
 import { Server } from '@hocuspocus/server'
 import { exec } from 'child_process'
 import { promisify } from 'util'
-import { db } from './db'
 import * as Y from 'yjs'
+import { TiptapTransformer } from '@hocuspocus/transformer'
+import { db } from './db'
 
 const execAsync = promisify(exec)
 
@@ -92,6 +93,9 @@ export function getHocuspocusServer() {
 
         if (document?.content) {
           console.log(`✅ 文档加载成功: ${document.title} (v${document.version})`)
+          
+          Y.applyUpdate(data.document, document.content)
+          console.log('document.content', TiptapTransformer.fromYdoc(data.document))
           
           // 将 Buffer 转换为 Uint8Array
           const contentBuffer = document.content
