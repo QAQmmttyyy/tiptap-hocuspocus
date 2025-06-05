@@ -1,23 +1,27 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useEffect } from "react"
 import { NodeViewWrapper } from "@tiptap/react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Play, RefreshCw, X, CheckCircle, AlertCircle, Clock } from "lucide-react"
+import {
+  Play,
+  RefreshCw,
+  X,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  List,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react"
+import { useWorkflowNode } from "@/hooks/useWorkflowNode"
 
 interface WorkflowExecutionState {
   workflow_invocation_id: string
   current_step: string
   status: "pending" | "started" | "completed" | "failed"
-  execution_log: Record<
-    string,
-    Array<{
-      tool_name: string
-      input: string
-      output: string
-    }>
-  >
+  execution_log: Record<string, Array<any>>
 }
 
 interface WorkflowNodeProps {
@@ -47,17 +51,38 @@ const WorkflowNodeView: React.FC<WorkflowNodeProps> = ({
   deleteNode,
   selected,
 }) => {
-  const [isExecuting, setIsExecuting] = useState(false)
+  const {
+    // 状态
+    isExecuting,
+    workflows,
+    isLoadingWorkflows,
+    expandedSteps,
+
+    // 计算函数
+    getStepLogs,
+    getStatusIcon,
+    getStatusText,
+    getStatusColor,
+    getStepStatus,
+
+    // 操作函数
+    toggleStepExpansion,
+    autoExpandCurrentStep,
+    clearExpandedSteps,
+    startExecution,
+    stopExecution,
+    startLoadingWorkflows,
+    stopLoadingWorkflows,
+    updateWorkflows,
+  } = useWorkflowNode()
 
   // 从节点属性中获取执行状态，而不是本地状态
   const invocation = node.attrs.executionState
   const currentInvocationId = node.attrs.invocationId
 
-  // 从API获取工作流基础信息
+  // 初始化时获取工作流列表
   useEffect(() => {
-    if (!node.attrs.workflowId && (!node.attrs.steps || node.attrs.steps.length === 0)) {
-      fetchWorkflowData()
-    }
+    fetchWorkflowList()
   }, [])
 
   // 轮询检查执行状态
@@ -80,23 +105,37 @@ const WorkflowNodeView: React.FC<WorkflowNodeProps> = ({
     }
   }, [currentInvocationId, invocation?.status])
 
-  const fetchWorkflowData = async () => {
+  // 自动展开当前步骤（如果有日志）
+  useEffect(() => {
+    autoExpandCurrentStep(invocation)
+  }, [invocation?.current_step, invocation?.status, autoExpandCurrentStep])
+
+  const fetchWorkflowList = async () => {
+    startLoadingWorkflows()
     try {
       const response = await fetch("/api/v1/workflow")
       const data = await response.json()
 
-      if (data.code === 200 && data.data.workflows.length > 0) {
-        const workflow = data.data.workflows[0]
-        updateAttributes({
-          workflowId: workflow.id,
-          steps: workflow.steps,
-          title: node.attrs.title || "工作流执行",
-          invocationId: node.attrs.invocationId,
-          executionState: node.attrs.executionState,
-        })
+      if (data.code === 200) {
+        updateWorkflows(data.data.workflows)
       }
     } catch (error) {
-      console.error("获取工作流数据失败:", error)
+      console.error("获取工作流列表失败:", error)
+    } finally {
+      stopLoadingWorkflows()
+    }
+  }
+
+  const handleWorkflowSelect = (workflowId: string) => {
+    const selectedWorkflow = workflows.find((w) => w.id === workflowId)
+    if (selectedWorkflow) {
+      updateAttributes({
+        title: node.attrs.title || `工作流: ${selectedWorkflow.name || selectedWorkflow.id}`,
+        workflowId: selectedWorkflow.id,
+        steps: selectedWorkflow.steps,
+        invocationId: null, // 重置调用ID
+        executionState: null, // 重置执行状态
+      })
     }
   }
 
@@ -114,12 +153,20 @@ const WorkflowNodeView: React.FC<WorkflowNodeProps> = ({
       })
     }
 
-    setIsExecuting(true)
+    // 清除之前展开的步骤状态
+    clearExpandedSteps()
+    startExecution()
 
     try {
       // 创建新的工作流调用
       const response = await fetch(`/api/v1/workflow/${node.attrs.workflowId}/invocation`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          initial_shared_context: null,
+        }),
       })
       const data = await response.json()
 
@@ -137,7 +184,7 @@ const WorkflowNodeView: React.FC<WorkflowNodeProps> = ({
       }
     } catch (error) {
       console.error("执行工作流失败:", error)
-      setIsExecuting(false)
+      stopExecution()
     }
   }
 
@@ -162,12 +209,12 @@ const WorkflowNodeView: React.FC<WorkflowNodeProps> = ({
 
         // 如果执行完成或失败，停止执行状态
         if (data.data.status === "completed" || data.data.status === "failed") {
-          setIsExecuting(false)
+          stopExecution()
         }
       }
     } catch (error) {
       console.error("获取执行状态失败:", error)
-      setIsExecuting(false)
+      stopExecution()
     }
   }
 
@@ -181,48 +228,20 @@ const WorkflowNodeView: React.FC<WorkflowNodeProps> = ({
     })
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
+  // 渲染状态图标
+  const renderStatusIcon = (status: string) => {
+    const iconType = getStatusIcon(status)
+    switch (iconType) {
+      case "CheckCircle":
         return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "failed":
+      case "AlertCircle":
         return <AlertCircle className="h-4 w-4 text-red-500" />
-      case "started":
+      case "RefreshCw":
         return <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />
-      case "pending":
+      case "Clock":
         return <Clock className="h-4 w-4 text-yellow-500" />
       default:
         return null
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "执行完成"
-      case "failed":
-        return "执行失败"
-      case "started":
-        return "执行中"
-      case "pending":
-        return "等待执行"
-      default:
-        return "未知状态"
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "text-green-600 bg-green-50 border-green-200"
-      case "failed":
-        return "text-red-600 bg-red-50 border-red-200"
-      case "started":
-        return "text-blue-600 bg-blue-50 border-blue-200"
-      case "pending":
-        return "text-yellow-600 bg-yellow-50 border-yellow-200"
-      default:
-        return "text-gray-600 bg-gray-50 border-gray-200"
     }
   }
 
@@ -268,7 +287,7 @@ const WorkflowNodeView: React.FC<WorkflowNodeProps> = ({
                 ${getStatusColor(invocation.status)}
               `}
               >
-                {getStatusIcon(invocation.status)}
+                {renderStatusIcon(invocation.status)}
                 <span className="font-medium">{getStatusText(invocation.status)}</span>
               </div>
             )}
@@ -310,68 +329,170 @@ const WorkflowNodeView: React.FC<WorkflowNodeProps> = ({
 
         <CardContent className="pt-0">
           <div className="space-y-3">
-            {/* 步骤列表 */}
+            {/* 工作流选择器 */}
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">执行步骤：</h4>
-              {steps.map((step, index) => {
-                const isCurrentStep = invocation && parseInt(invocation.current_step) === index
-                const isCompleted = invocation && parseInt(invocation.current_step) > index
-                const isAllCompleted = invocation?.status === "completed"
-
-                return (
-                  <div
-                    key={index}
-                    className={`
-                      flex items-center gap-3 p-3 rounded-lg transition-all duration-300
-                      ${isCurrentStep ? "bg-blue-50 border border-blue-200 shadow-sm" : ""}
-                      ${
-                        isCompleted || isAllCompleted
-                          ? "bg-green-50 border border-green-200 shadow-sm"
-                          : ""
-                      }
-                      ${!invocation ? "bg-gray-50 border border-gray-100" : ""}
-                    `}
-                  >
-                    <div
-                      className={`
-                      flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all duration-300
-                      ${isCurrentStep ? "bg-blue-500 text-white shadow-md" : ""}
-                      ${isCompleted || isAllCompleted ? "bg-green-500 text-white shadow-md" : ""}
-                      ${
-                        !invocation || (!isCurrentStep && !isCompleted && !isAllCompleted)
-                          ? "bg-gray-300 text-gray-600"
-                          : ""
-                      }
-                    `}
-                    >
-                      {isCompleted || isAllCompleted ? (
-                        <CheckCircle className="h-4 w-4" />
-                      ) : (
-                        index + 1
-                      )}
-                    </div>
-                    <span
-                      className={`
-                      flex-1 text-sm transition-all duration-300
-                      ${isCurrentStep ? "text-blue-800 font-medium" : ""}
-                      ${isCompleted || isAllCompleted ? "text-green-800 font-medium" : ""}
-                      ${
-                        !invocation || (!isCurrentStep && !isCompleted && !isAllCompleted)
-                          ? "text-gray-600"
-                          : ""
-                      }
-                    `}
-                    >
-                      {step}
-                    </span>
-                    {isCurrentStep && <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />}
-                    {(isCompleted || isAllCompleted) && (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    )}
-                  </div>
-                )
-              })}
+              <div className="flex items-center gap-2 mb-2">
+                <List className="h-4 w-4 text-gray-600" />
+                <h4 className="text-sm font-medium text-gray-700">选择工作流：</h4>
+                {isLoadingWorkflows && <RefreshCw className="h-3 w-3 animate-spin text-blue-500" />}
+              </div>
+              <select
+                value={node.attrs.workflowId || ""}
+                onChange={(e) => handleWorkflowSelect(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                disabled={isLoadingWorkflows || isExecuting}
+              >
+                <option value="">请选择一个工作流...</option>
+                {workflows.map((workflow) => (
+                  <option key={workflow.id} value={workflow.id}>
+                    {workflow.name || workflow.id}
+                    {workflow.description && ` - ${workflow.description}`}
+                  </option>
+                ))}
+              </select>
             </div>
+
+            {/* 步骤列表 - 只有选择了工作流才显示 */}
+            {node.attrs.workflowId && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">执行步骤：</h4>
+                {steps.map((step, index) => {
+                  const { isCurrentStep, isCompleted, isAllCompleted } = getStepStatus(
+                    index,
+                    invocation,
+                  )
+                  const stepLogs = getStepLogs(index, invocation)
+                  const hasLogs = stepLogs.length > 0
+                  const isExpanded = expandedSteps.has(index)
+
+                  return (
+                    <div key={index} className="space-y-2">
+                      <div
+                        className={`
+                        transition-all duration-300
+                        ${isCurrentStep ? "bg-blue-50 border border-blue-200 shadow-sm" : ""}
+                        ${
+                          isCompleted || isAllCompleted
+                            ? "bg-green-50 border border-green-200 shadow-sm"
+                            : ""
+                        }
+                        ${!invocation ? "bg-gray-50 border border-gray-100" : ""}
+                        rounded-lg
+                      `}
+                      >
+                        <div className="flex items-center gap-3 p-3">
+                          <div
+                            className={`
+                            flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all duration-300
+                            ${isCurrentStep ? "bg-blue-500 text-white shadow-md" : ""}
+                            ${
+                              isCompleted || isAllCompleted
+                                ? "bg-green-500 text-white shadow-md"
+                                : ""
+                            }
+                            ${
+                              !invocation || (!isCurrentStep && !isCompleted && !isAllCompleted)
+                                ? "bg-gray-300 text-gray-600"
+                                : ""
+                            }
+                          `}
+                          >
+                            {isCompleted || isAllCompleted ? (
+                              <CheckCircle className="h-4 w-4" />
+                            ) : (
+                              index + 1
+                            )}
+                          </div>
+                          <span
+                            className={`
+                            flex-1 text-sm transition-all duration-300
+                            ${isCurrentStep ? "text-blue-800 font-medium" : ""}
+                            ${isCompleted || isAllCompleted ? "text-green-800 font-medium" : ""}
+                            ${
+                              !invocation || (!isCurrentStep && !isCompleted && !isAllCompleted)
+                                ? "text-gray-600"
+                                : ""
+                            }
+                          `}
+                          >
+                            {step}
+                          </span>
+
+                          <div className="flex items-center gap-2">
+                            {isCurrentStep && (
+                              <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />
+                            )}
+                            {(isCompleted || isAllCompleted) && (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            )}
+                            {hasLogs && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                                  {stepLogs.length}
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => toggleStepExpansion(index)}
+                                  className="h-6 w-6 p-0 hover:bg-gray-100"
+                                  title={
+                                    isExpanded ? "收起日志" : `展开日志 (${stepLogs.length}条)`
+                                  }
+                                >
+                                  {isExpanded ? (
+                                    <ChevronDown className="h-3 w-3" />
+                                  ) : (
+                                    <ChevronRight className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* 步骤日志 */}
+                        {hasLogs && isExpanded && (
+                          <div className="px-3 pb-3">
+                            <div className="border-t border-gray-200 pt-3">
+                              <div className="space-y-2 max-h-48 overflow-y-auto">
+                                {stepLogs.map((log, logIndex) => (
+                                  <div
+                                    key={logIndex}
+                                    className="bg-white border border-gray-200 p-3 rounded-md text-xs"
+                                  >
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="font-medium text-gray-800">{log.type}</span>
+                                      <span className="text-gray-500 text-xs">
+                                        {new Date(log.timestamp).toLocaleString()}
+                                      </span>
+                                    </div>
+                                    {log.summary && (
+                                      <div className="text-gray-600 mb-2 font-medium text-xs">
+                                        {log.summary}
+                                      </div>
+                                    )}
+                                    {log.details && Object.keys(log.details).length > 0 && (
+                                      <div className="text-gray-600">
+                                        <div className="font-medium text-blue-600 mb-1 text-xs">
+                                          详细信息:
+                                        </div>
+                                        <pre className="whitespace-pre-wrap text-xs bg-gray-50 p-2 rounded border overflow-x-auto">
+                                          {JSON.stringify(log.details, null, 2)}
+                                        </pre>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
 
             {/* 执行完成提示 */}
             {invocation?.status === "completed" && (
@@ -380,44 +501,8 @@ const WorkflowNodeView: React.FC<WorkflowNodeProps> = ({
                   <CheckCircle className="h-5 w-5 text-green-500" />
                   <span className="font-medium text-sm">工作流执行成功完成！</span>
                 </div>
-                <p className="text-xs text-green-600 mt-1">
-                  所有步骤已顺利完成，大象已安全存储在冰箱中。
-                </p>
               </div>
             )}
-
-            {/* 执行日志 */}
-            {invocation &&
-              invocation.execution_log &&
-              Object.keys(invocation.execution_log).length > 0 && (
-                <div className="mt-4 border-t pt-3">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">执行日志：</h4>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {Object.entries(invocation.execution_log).map(([stepKey, logs]) =>
-                      logs.map((log, logIndex) => (
-                        <div
-                          key={`${stepKey}-${logIndex}`}
-                          className="bg-gray-50 border border-gray-200 p-3 rounded-lg text-xs"
-                        >
-                          <div className="font-medium text-gray-800 mb-1">
-                            {stepKey} - {log.tool_name}
-                          </div>
-                          {log.input && (
-                            <div className="text-gray-600 mb-1">
-                              <span className="font-medium text-blue-600">输入:</span> {log.input}
-                            </div>
-                          )}
-                          {log.output && (
-                            <div className="text-gray-600">
-                              <span className="font-medium text-green-600">输出:</span> {log.output}
-                            </div>
-                          )}
-                        </div>
-                      )),
-                    )}
-                  </div>
-                </div>
-              )}
           </div>
         </CardContent>
       </Card>

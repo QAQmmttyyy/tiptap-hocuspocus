@@ -1,18 +1,46 @@
 import { NextResponse } from "next/server"
+import { fetchWorkflowAPI } from "@/lib/workflow-api"
 
 export async function GET() {
-  const response = {
-    code: 200,
-    message: "成功",
-    data: {
-      workflows: [
-        {
-          id: "550e8400-e29b-41d4-a716-446655440000", // 固定的UUID格式
-          steps: ["打开冰箱门", "把大象装进冰箱", "关上冰箱门"],
-        },
-      ],
-    },
-  }
+  try {
+    // 调用真实的后端API获取工作流列表
+    const data = await fetchWorkflowAPI("/v1/workflow")
+    console.log(data, "data")
 
-  return NextResponse.json(response)
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("获取工作流列表失败:", error)
+    return NextResponse.json(
+      {
+        code: 500,
+        message: "获取工作流列表失败",
+        data: { workflows: [] },
+      },
+      { status: 500 },
+    )
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+
+    // 调用真实的后端API创建工作流
+    const data = await fetchWorkflowAPI("/v1/workflow", {
+      method: "POST",
+      body: JSON.stringify(body),
+    })
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("创建工作流失败:", error)
+    return NextResponse.json(
+      {
+        code: 500,
+        message: "创建工作流失败",
+        data: null,
+      },
+      { status: 500 },
+    )
+  }
 }

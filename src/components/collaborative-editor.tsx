@@ -325,7 +325,16 @@ export default function CollaborativeEditor({
 
         {/* 在线用户头像 */}
         <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            onClick={() => {
+              console.log(editor?.getJSON())
+            }}
+          >
+            get json
+          </Button>
           <span className="text-xs text-gray-500">协作者</span>
+
           <div className="flex -space-x-2">
             {users.slice(0, 5).map((user, index) => (
               <div

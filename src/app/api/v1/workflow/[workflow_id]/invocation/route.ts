@@ -1,48 +1,45 @@
 import { NextResponse } from "next/server"
+import { fetchWorkflowAPI } from "@/lib/workflow-api"
 
 /* eslint-disable */
-export async function GET(
-  _request: Request,
-  { params: _params }: { params: { workflow_id: string } },
-) {
-  // 注意：这里接收了 workflow_id 参数，但在当前实现中返回固定数据
-  // 如果需要根据 workflow_id 返回不同数据，可以使用 _params.workflow_id
-
-  const response = {
-    code: 200,
-    message: "成功",
-    data: {
-      workflow_invocation_ids: [
-        "a1b2c3d4-e5f6-7890-abcd-ef1234567890", // 固定的UUID格式
-        "b2c3d4e5-f6g7-8901-bcde-f23456789012", // 固定的UUID格式
-      ],
-    },
+export async function GET(_request: Request, { params }: { params: { workflow_id: string } }) {
+  try {
+    // 调用真实的后端API获取工作流调用列表
+    const data = await fetchWorkflowAPI(`/v1/workflow/${params.workflow_id}/invocation`)
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("获取工作流调用列表失败:", error)
+    return NextResponse.json(
+      {
+        code: 500,
+        message: "获取工作流调用列表失败",
+        data: { workflow_invocation_ids: [] },
+      },
+      { status: 500 },
+    )
   }
-
-  return NextResponse.json(response)
 }
 
-export async function POST(
-  _request: Request,
-  { params: _params }: { params: { workflow_id: string } },
-) {
-  // 创建新的 workflow invocation
-  // 生成新的UUID
-  const generateUUID = () => {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0
-      const v = c == "x" ? r : (r & 0x3) | 0x8
-      return v.toString(16)
+export async function POST(request: Request, { params }: { params: { workflow_id: string } }) {
+  try {
+    const body = await request.json()
+
+    // 调用真实的后端API创建工作流调用
+    const data = await fetchWorkflowAPI(`/v1/workflow/${params.workflow_id}/invocation`, {
+      method: "POST",
+      body: JSON.stringify(body),
     })
-  }
 
-  const response = {
-    code: 200,
-    message: "成功",
-    data: {
-      workflow_invocation_id: generateUUID(), // 每次生成新的UUID
-    },
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("创建工作流调用失败:", error)
+    return NextResponse.json(
+      {
+        code: 500,
+        message: "创建工作流调用失败",
+        data: null,
+      },
+      { status: 500 },
+    )
   }
-
-  return NextResponse.json(response)
 }
