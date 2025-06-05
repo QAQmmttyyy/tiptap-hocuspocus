@@ -13,7 +13,11 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CalendarExtension } from "@/lib/calendar-extension"
 import { WorkflowExtension } from "@/lib/workflow-extension"
+import { createSlashCommandExtension, slashCommands, SlashCommand } from "@/lib/slash-command"
+import SlashCommandList from "@/components/slash-command-list"
 import { CalendarIcon, Workflow } from "lucide-react"
+import { ReactRenderer } from "@tiptap/react"
+import tippy, { Instance } from "tippy.js"
 
 interface CollaborativeEditorProps {
   documentId: string
@@ -38,6 +42,86 @@ export default function CollaborativeEditor({
   const [provider, setProvider] = useState<HocuspocusProvider | null>(null)
   const [status, setStatus] = useState<ConnectionStatus>("connecting")
   const [users, setUsers] = useState<User[]>([])
+
+  // Slash command 渲染逻辑
+  const renderSlashCommands = () => {
+    let component: ReactRenderer | null = null
+    let popup: Instance[] | null = null
+
+    return {
+      onStart: (props: any) => {
+        component = new ReactRenderer(SlashCommandList, {
+          props: {
+            ...props,
+            items: slashCommands.filter((command: SlashCommand) =>
+              command.title.toLowerCase().includes(props.query.toLowerCase()),
+            ),
+          },
+          editor: props.editor,
+        })
+
+        if (!props.clientRect) {
+          return
+        }
+
+        popup = tippy("body", {
+          getReferenceClientRect: props.clientRect,
+          appendTo: () => document.body,
+          content: component.element,
+          showOnCreate: true,
+          interactive: true,
+          trigger: "manual",
+          placement: "bottom-start",
+        })
+      },
+
+      onUpdate(props: any) {
+        if (component) {
+          component.updateProps({
+            ...props,
+            items: slashCommands.filter((command: SlashCommand) =>
+              command.title.toLowerCase().includes(props.query.toLowerCase()),
+            ),
+          })
+        }
+
+        if (!props.clientRect) {
+          return
+        }
+
+        if (popup && popup[0]) {
+          popup[0].setProps({
+            getReferenceClientRect: props.clientRect,
+          })
+        }
+      },
+
+      onKeyDown(props: any) {
+        if (props.event.key === "Escape") {
+          if (popup && popup[0]) {
+            popup[0].hide()
+          }
+          return true
+        }
+
+        const ref = component?.ref as any
+        if (ref?.onKeyDown) {
+          return ref.onKeyDown(props.event)
+        }
+
+        return false
+      },
+
+      onExit() {
+        if (popup && popup[0]) {
+          popup[0].destroy()
+        }
+        if (component) {
+          component.destroy()
+        }
+      },
+    }
+  }
 
   // 只有在provider准备好后才初始化编辑器
   const editor = useEditor(
@@ -106,6 +190,17 @@ export default function CollaborativeEditor({
         }),
         CalendarExtension,
         WorkflowExtension,
+        createSlashCommandExtension({
+          items: ({ query }: any) => {
+            return slashCommands.filter((command: SlashCommand) =>
+              command.title.toLowerCase().includes(query.toLowerCase()),
+            )
+          },
+          render: renderSlashCommands,
+          command: ({ editor, range, props }: any) => {
+            props.command({ editor, range })
+          },
+        }),
         // 只有当provider存在时才添加协作扩展
         ...(provider
           ? [
