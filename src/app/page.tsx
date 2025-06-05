@@ -6,8 +6,10 @@ import ServerStatus from "@/components/server-status"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
+  const router = useRouter()
   const [documentId, setDocumentId] = useState("demo-document")
   const [userName, setUserName] = useState("")
   const [isEditing, setIsEditing] = useState(false)
@@ -37,7 +39,13 @@ export default function Home() {
               {/* <Button variant="outline" onClick={handleNewDocument}>
                 新建文档
               </Button> */}
-              <Button onClick={() => {}}>新建工作流</Button>
+              <Button
+                onClick={() => {
+                  router.push("/workflow")
+                }}
+              >
+                新建工作流
+              </Button>
             </div>
           </div>
 
