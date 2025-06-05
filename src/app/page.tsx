@@ -1,15 +1,15 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import CollaborativeEditor from '@/components/collaborative-editor'
-import ServerStatus from '@/components/server-status'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useState } from "react"
+import CollaborativeEditor from "@/components/collaborative-editor"
+import ServerStatus from "@/components/server-status"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export default function Home() {
-  const [documentId, setDocumentId] = useState('demo-document')
-  const [userName, setUserName] = useState('')
+  const [documentId, setDocumentId] = useState("demo-document")
+  const [userName, setUserName] = useState("")
   const [isEditing, setIsEditing] = useState(false)
 
   const handleStartEditing = () => {
@@ -30,26 +30,20 @@ export default function Home() {
       <main className="min-h-screen bg-gray-50 py-8">
         <div className="container mx-auto">
           <div className="mb-4 flex justify-between items-center">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditing(false)}
-            >
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
               ← 返回首页
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={handleNewDocument}
-            >
-              新建文档
-            </Button>
+            <div className="flex gap-2">
+              {/* <Button variant="outline" onClick={handleNewDocument}>
+                新建文档
+              </Button> */}
+              <Button onClick={() => {}}>新建工作流</Button>
+            </div>
           </div>
-          
+
           <ServerStatus />
-          
-          <CollaborativeEditor 
-            documentId={documentId} 
-            userName={userName}
-          />
+
+          <CollaborativeEditor documentId={documentId} userName={userName} />
         </div>
       </main>
     )
@@ -59,7 +53,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <ServerStatus />
-        
+
         <Card className="p-6">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold mb-2">实时协作文档</h1>
@@ -87,19 +81,11 @@ export default function Home() {
               />
             </div>
 
-            <Button 
-              className="w-full" 
-              onClick={handleStartEditing}
-              disabled={!documentId.trim()}
-            >
+            <Button className="w-full" onClick={handleStartEditing} disabled={!documentId.trim()}>
               开始协作编辑
             </Button>
 
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              onClick={handleNewDocument}
-            >
+            <Button variant="outline" className="w-full" onClick={handleNewDocument}>
               创建新文档
             </Button>
           </div>
