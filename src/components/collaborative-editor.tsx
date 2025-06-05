@@ -24,7 +24,7 @@ export default function CollaborativeEditor({
   useEffect(() => {
     // 创建Hocuspocus提供者
     const hocuspocusProvider = new HocuspocusProvider({
-      url: 'ws://localhost:1234',
+      url: `ws://${window.location.hostname}:1234`,
       name: documentId,
       onConnect() {
         setStatus('connected')

@@ -83,6 +83,7 @@ export function getHocuspocusServer() {
 
   hocuspocusServer = new Server({
     port: 1234,
+    address: "0.0.0.0",
     name: "enhanced-hocuspocus-server",
 
     // 🔧 实时持久化：从数据库加载已存在的文档
